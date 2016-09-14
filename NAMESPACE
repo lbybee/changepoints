@@ -1,0 +1,3 @@
+useDynLib(changepoints)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
