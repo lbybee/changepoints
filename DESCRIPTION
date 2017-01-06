@@ -1,11 +1,11 @@
 Package: changepoints
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Uses simulated annealing to estimate multiple changepoints for high-dimensional data.
+Version: 0.1
 Date: 2016-09-14
-Author: Your Name
-Maintainer: Your Name <your@email.com>
-Description: More about what it does (maybe more than one line)
+Author: Leland Bybee
+Maintainer: Leland Bybee <lelandb@umich.edu>
+Description: Here is some stuff
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.3)
-LinkingTo: Rcpp
+LinkingTo: RcppArmadillo, Rcpp
