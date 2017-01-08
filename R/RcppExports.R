@@ -25,3 +25,19 @@ simulated_annealing <- function(data, tau = -1L, buff = 10L, regularizer = 1., u
     .Call('changepoints_simulated_annealing', PACKAGE = 'changepoints', data, tau, buff, regularizer, update_w, update_change, mapping_iter, max_iter, cooling, kernel, beta_min, d, tol)
 }
 
+brute_force <- function(data, buff = 10L, regularizer = 1., update_w = 1., update_change = 0.9, tol = 0.00001, mapping_iter = 1L) {
+    .Call('changepoints_brute_force', PACKAGE = 'changepoints', data, buff, regularizer, update_w, update_change, tol, mapping_iter)
+}
+
+log_likelihood_rank_one <- function(data, S0, S1, theta0, theta1, buff, tau, regularizer) {
+    .Call('changepoints_log_likelihood_rank_one', PACKAGE = 'changepoints', data, S0, S1, theta0, theta1, buff, tau, regularizer)
+}
+
+rank_one <- function(data, buff = 10L, regularizer = 1., tau = -1L, max_iter = 25L, update_w = 1., update_change = 0.9, mapping_iter = 1L, tol = 0.00001) {
+    .Call('changepoints_rank_one', PACKAGE = 'changepoints', data, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol)
+}
+
+binary_segmentation <- function(data, thresh, method, buff, regularizer) {
+    .Call('changepoints_binary_segmentation', PACKAGE = 'changepoints', data, thresh, method, buff, regularizer)
+}
+

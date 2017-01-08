@@ -25,7 +25,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // log_likelihood
-float log_likelihood(mat data, mat theta0, mat theta1, int tau, float regularizer);
+List log_likelihood(mat data, mat theta0, mat theta1, int tau, float regularizer);
 RcppExport SEXP changepoints_log_likelihood(SEXP dataSEXP, SEXP theta0SEXP, SEXP theta1SEXP, SEXP tauSEXP, SEXP regularizerSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -81,7 +81,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // simulated_annealing
-float simulated_annealing(mat data, int tau, int buff, float regularizer, float update_w, float update_change, int mapping_iter, int max_iter, int cooling, int kernel, float beta_min, float d, float tol);
+List simulated_annealing(mat data, int tau, int buff, float regularizer, float update_w, float update_change, int mapping_iter, int max_iter, int cooling, int kernel, float beta_min, float d, float tol);
 RcppExport SEXP changepoints_simulated_annealing(SEXP dataSEXP, SEXP tauSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP mapping_iterSEXP, SEXP max_iterSEXP, SEXP coolingSEXP, SEXP kernelSEXP, SEXP beta_minSEXP, SEXP dSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -100,6 +100,75 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< float >::type d(dSEXP);
     Rcpp::traits::input_parameter< float >::type tol(tolSEXP);
     rcpp_result_gen = Rcpp::wrap(simulated_annealing(data, tau, buff, regularizer, update_w, update_change, mapping_iter, max_iter, cooling, kernel, beta_min, d, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// brute_force
+List brute_force(mat data, int buff, float regularizer, float update_w, float update_change, float tol, int mapping_iter);
+RcppExport SEXP changepoints_brute_force(SEXP dataSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP tolSEXP, SEXP mapping_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type buff(buffSEXP);
+    Rcpp::traits::input_parameter< float >::type regularizer(regularizerSEXP);
+    Rcpp::traits::input_parameter< float >::type update_w(update_wSEXP);
+    Rcpp::traits::input_parameter< float >::type update_change(update_changeSEXP);
+    Rcpp::traits::input_parameter< float >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type mapping_iter(mapping_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(brute_force(data, buff, regularizer, update_w, update_change, tol, mapping_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// log_likelihood_rank_one
+List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0, mat theta1, int buff, int tau, float regularizer);
+RcppExport SEXP changepoints_log_likelihood_rank_one(SEXP dataSEXP, SEXP S0SEXP, SEXP S1SEXP, SEXP theta0SEXP, SEXP theta1SEXP, SEXP buffSEXP, SEXP tauSEXP, SEXP regularizerSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< mat >::type S0(S0SEXP);
+    Rcpp::traits::input_parameter< mat >::type S1(S1SEXP);
+    Rcpp::traits::input_parameter< mat >::type theta0(theta0SEXP);
+    Rcpp::traits::input_parameter< mat >::type theta1(theta1SEXP);
+    Rcpp::traits::input_parameter< int >::type buff(buffSEXP);
+    Rcpp::traits::input_parameter< int >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< float >::type regularizer(regularizerSEXP);
+    rcpp_result_gen = Rcpp::wrap(log_likelihood_rank_one(data, S0, S1, theta0, theta1, buff, tau, regularizer));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rank_one
+List rank_one(mat data, int buff, float regularizer, int tau, int max_iter, float update_w, float update_change, int mapping_iter, float tol);
+RcppExport SEXP changepoints_rank_one(SEXP dataSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP tauSEXP, SEXP max_iterSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP mapping_iterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type buff(buffSEXP);
+    Rcpp::traits::input_parameter< float >::type regularizer(regularizerSEXP);
+    Rcpp::traits::input_parameter< int >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
+    Rcpp::traits::input_parameter< float >::type update_w(update_wSEXP);
+    Rcpp::traits::input_parameter< float >::type update_change(update_changeSEXP);
+    Rcpp::traits::input_parameter< int >::type mapping_iter(mapping_iterSEXP);
+    Rcpp::traits::input_parameter< float >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(rank_one(data, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// binary_segmentation
+vec binary_segmentation(mat data, float thresh, int method, int buff, float regularizer);
+RcppExport SEXP changepoints_binary_segmentation(SEXP dataSEXP, SEXP threshSEXP, SEXP methodSEXP, SEXP buffSEXP, SEXP regularizerSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< float >::type thresh(threshSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< int >::type buff(buffSEXP);
+    Rcpp::traits::input_parameter< float >::type regularizer(regularizerSEXP);
+    rcpp_result_gen = Rcpp::wrap(binary_segmentation(data, thresh, method, buff, regularizer));
     return rcpp_result_gen;
 END_RCPP
 }
