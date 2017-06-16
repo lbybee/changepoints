@@ -69,6 +69,7 @@ mat mapping(mat cov_est, mat theta_0,
             }
         }
         delta_norm = norm(theta_k - theta_p) / norm(theta_k);
+        theta_k = theta_p;
         if (delta_norm < tol) {
             state = 0;
         }
@@ -116,10 +117,9 @@ List log_likelihood(mat data, mat theta0, mat theta1, int tau,
     float tr_TdS0 = trace(TdS0);
     float tr_TdS1 = trace(TdS1);
 
-    double val;
     double sign;
-    float det0 = log_det(val, sign, theta0);
-    float det1 = log_det(val, sign, theta1);
+    double det0; log_det(det0, sign, theta0);
+    double det1; log_det(det1, sign, theta1);
 
     float ll0 = tau * 0.5 * (- det0 + tr_TdS0);
     ll0 += regularizer * sqrt(log(P) / tau) * norm(theta0, 1);
@@ -430,12 +430,12 @@ List brute_force(mat data, int buff=10, float regularizer=1., float update_w=1.,
 
     List ll_res;
 
-    vec ll_l = zeros(N - 2 * buff);
+    vec ll_l = zeros(N - 2 * buff + 1);
+
+    theta0 = S_inv;
+    theta1 = S_inv;
 
     for (int i = buff; i <= N - buff; i++){
-
-        theta0 = S_inv;
-        theta1 = S_inv;
 
         S0 = cov(data.rows(0, i-1));
         S1 = cov(data.rows(i, N-1));
@@ -456,10 +456,11 @@ List brute_force(mat data, int buff=10, float regularizer=1., float update_w=1.,
 
     int min_tau = -1;
     // TODO fix this
-    float ll_min = 1e20;
+    float ll_min = -1e20;
     for (int i = 0; i <= N - 2 * buff; i++){
-        if (ll_l(i) < ll_min){
+        if (ll_l(i) > ll_min){
             min_tau = i + buff;
+            ll_min = ll_l(i);
         }
     }
 
@@ -531,11 +532,9 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
     float tr_TdS0 = trace(TdS0);
     float tr_TdS1 = trace(TdS1);
 
-    double val;
     double sign;
-
-    float det0 = log_det(val, sign, theta0);
-    float det1 = log_det(val, sign, theta1);
+    double det0; log_det(det0, sign, theta0);
+    double det1; log_det(det1, sign, theta1);
 
     float ll = tau * 0.5 * (-det0 + tr_TdS0);
     ll += regularizer * sqrt(log(P) / tau) * norm(theta0, 1);
@@ -543,7 +542,8 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
     ll += regularizer * sqrt(log(P) / (N - tau)) * norm(theta1, 1);
     ll *= -1;
 
-    vec ll_l = zeros(N - 2 * buff);
+    vec ll_l = zeros(N - 2 * buff + 1);
+    printf("%d\n", ll_l.n_elem);
 
     ll_l(tau) = ll;
 
@@ -558,9 +558,10 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
 
     for(int i = tau - 1; i >= buff; --i){
 
-        mat op_data = zeros(P, 1);
-        op_data.col(0) = data.col(i);
-        mat rank_one_update = kron(op_data, trans(op_data));
+        mat op_data = zeros(1, P);
+        op_data.row(0) = data.row(i);
+        mat rank_one_update = kron(trans(op_data), op_data);
+        printf("1");
 
         Sp0 = (i * Sp0 - rank_one_update) / (i - 1);
         Sp1 = ((N - i - 1) * Sp1 + rank_one_update) / (N - i);
@@ -577,7 +578,9 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
         ll += regularizer * sqrt(log(P) / (N - i)) * norm(theta1, 1);
         ll *= -1;
 
-        ll_l(i) = ll;
+        printf("1 %d\n", i);
+
+        ll_l(i - buff) = ll;
 
     }
 
@@ -586,9 +589,10 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
 
     for(int i = tau + 1; i <= N - buff; i++){
 
-        mat op_data = zeros(P, 1);
-        op_data.col(0) = data.col(i);
-        mat rank_one_update = kron(op_data, trans(op_data));
+        mat op_data = zeros(1, P);
+        op_data.row(0) = data.row(i);
+        mat rank_one_update = kron(trans(op_data), op_data);
+        printf("2");
 
         Sp0 = ((i - 1) * Sp0 - rank_one_update) / i;
         Sp1 = ((N - i) * Sp1 + rank_one_update) / (N - i - 1);
@@ -604,16 +608,16 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
         ll += (N - i) * 0.5 * (-det1 + tr_TdSp1);
         ll += regularizer * sqrt(log(P) / (N - i)) * norm(theta1, 1);
         ll *= -1;
-
-        ll_l(i) = ll;
+        printf("2 %d\n", i);
+        ll_l(i - buff) = ll;
 
     }
 
     int min_tau = -1;
     // TODO fix this
-    float ll_min = 1e20;
+    float ll_min = -1e20;
     for (int i = 0; i <= N - 2 * buff; i++){
-        if (ll_l(i) < ll_min){
+        if (ll_l(i) > ll_min){
             min_tau = i + buff;
             ll_min = ll_l(i);
         }
@@ -632,6 +636,7 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
     float ll_mod = -(ll0 + ll1);
 
     List res;
+    res("tau") = min_tau;
     res("ll0") = ll0;
     res("ll1") = ll1;
     res("ll_mod") = ll_mod;
@@ -712,8 +717,10 @@ List rank_one(mat data, int buff=10, float regularizer=1., int tau=-1,
         theta1 = mapping(S1, theta1, update_w, update_change,
                          temp_regularizer, mapping_iter, tol);
 
+        printf("1\n");
         ll_res = log_likelihood_rank_one(data, S0, S1, theta0, theta1, buff,
                                          tau, regularizer);
+        printf("2\n");
         tau = ll_res("tau");
         ll0 = ll_res("ll0");
         ll1 = ll_res("ll1");
@@ -796,18 +803,22 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
     if (method == 2){
         res = brute_force(data);
     }
+    printf("1\n");
 
     cp = zeros(3);
     cp(1) = res("tau");
     cp(2) = N;
+    printf("2\n");
 
     ll_l = zeros(2);
     ll_l(0) = res("ll0");
     ll_l(1) = res("ll1");
+    printf("3\n");
 
     state = zeros(2);
     state(0) = 1;
     state(1) = 1;
+    printf("4\n");
 
     while (sum(state) > 0){
 
@@ -818,13 +829,18 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
         ll_counter = 0;
         cp_counter = 0;
         state_counter = 0;
+        printf("5\n");
 
         for(int i = 1; i < cp.n_elem; i++){
 
             if (state(i) == 1){
+                printf("6\n");
                 datat = data.rows(cp(i-1), cp(i));
+                printf("7\n");
                 Nt = datat.n_rows;
                 temp_regularizer = regularizer * sqrt(log(P) / Nt);
+                printf("%d\n", datat.n_rows);
+                printf("%d\n", datat.n_cols);
 
                 if (Nt > 2 * (buff + 1)){
                     // TODO fill these in/add error checking
@@ -837,6 +853,7 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
                     else if (method == 2){
                         res = brute_force(datat);
                     }
+                    printf("8\n");
                     taut = res("tau");
                     ll_mod = res("ll_mod");
 
