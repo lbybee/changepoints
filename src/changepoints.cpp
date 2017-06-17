@@ -798,7 +798,7 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
 
     cp = zeros(3);
     cp(1) = res("tau");
-    cp(2) = N;
+    cp(2) = N - 1;
 
     ll_l = zeros(2);
     ll_l(0) = res("ll0");
@@ -808,6 +808,11 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
     state(0) = 1;
     state(1) = 1;
 
+    // TODO remove this
+    int temp0;
+    int temp1;
+
+
     while (sum(state) > 0){
 
         // TODO a lot of this could probably be simplified
@@ -816,15 +821,25 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
         temp_state = zeros(state.n_elem * 2);
         printf("%d\n", state.n_elem);
         ll_counter = 0;
-        cp_counter = 0;
+        // we set this to one since there is always the 0 at the start,
+        // so it is one larger than ll or state
+        cp_counter = 1;
         state_counter = 0;
 
-        for(int i = 1; i < (cp.n_elem - 1); i++){
+        for(int i = 0; i < state.n_elem; i++){
 
+            printf("%d\n", i);
+            temp0 = state(i);
+            printf("%d\n", temp0);
             // check if we have already ruled this subset out, if not
             // then we do the estimation
             if (state(i) == 1){
-                datat = data.rows(cp(i-1), cp(i));
+                temp0 = cp(i);
+                temp1 = cp(i + 1);
+                printf("cp %d %d\n", temp0, temp1);
+                temp0 = data.n_rows;
+                printf("%d\n", temp0);
+                datat = data.rows(cp(i), cp(i+1));
                 Nt = datat.n_rows;
                 temp_regularizer = regularizer * sqrt(log(P) / Nt);
                 printf("%d\n", datat.n_rows);
@@ -845,11 +860,12 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
                     taut = res("tau");
                     ll_mod = res("ll_mod");
 
-                    cond1 = (ll_mod - ll_l(i - 1)) > thresh * P;
+                    cond1 = (ll_mod - ll_l(i)) > thresh * P;
                     cond2 = ll_mod < 1e15;
                     cond3 = taut < Nt - buff;
                     cond4 = taut > buff;
                     cond = cond1 and cond2 and cond3 and cond4;
+                    printf("1\n");
                 }
                 // if the sample size is not big enough we want to reject
                 // adding a changepoint
@@ -866,15 +882,16 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
                     temp_ll_l(ll_counter) = res("ll1");
                     ll_counter += 1;
 
-                    temp_cp(cp_counter) = taut + cp(i - 1);
+                    temp_cp(cp_counter) = taut + cp(i);
                     cp_counter += 1;
-                    temp_cp(cp_counter) = cp(i);
+                    temp_cp(cp_counter) = cp(i + 1);
                     cp_counter += 1;
 
                     temp_state(state_counter) = 1;
                     state_counter += 1;
                     temp_state(state_counter) = 1;
                     state_counter += 1;
+                    printf("2\n");
                 }
                 // if we fail the conditions we just copy what was previously
                 // there
@@ -882,20 +899,22 @@ vec binary_segmentation(mat data, float thresh, int method, int buff,
 
                     temp_ll_l(ll_counter) = ll_l(i);
                     ll_counter += 1;
-                    temp_cp(cp_counter) = cp(i);
+                    temp_cp(cp_counter) = cp(i + 1);
                     cp_counter += 1;
                     temp_state(state_counter) = 0;
                     state_counter += 1;
+                    printf("3\n");
                 }
             }
             else {
 
                 temp_ll_l(ll_counter) = ll_l(i);
                 ll_counter += 1;
-                temp_cp(cp_counter) = cp(i);
+                temp_cp(cp_counter) = cp(i + 1);
                 cp_counter += 1;
                 temp_state(state_counter) = 0;
                 state_counter += 1;
+                printf("4\n");
             }
         }
         printf("t1\n");
