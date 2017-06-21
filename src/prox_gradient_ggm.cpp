@@ -1,5 +1,4 @@
 #include <RcppArmadillo.h>
-#include "changepoints.h"
 
 using namespace std;
 using namespace Rcpp;
@@ -8,9 +7,9 @@ using namespace arma;
 
 // TODO document
 // [[Rcpp::export]]
-mat mapping(mat cov_est, mat theta_start, double update_w,
-            double update_change, double regularizer, int max_iter,
-            double tol){
+mat prox_gradient_mapping(mat data, mat theta_start, double update_w,
+                          double update_change, double regularizer,
+                          int max_iter, double tol){
     /* Produces the regularized estimation of the covariance matrix using
      * the proximal gradient procedure described in
      *
@@ -19,9 +18,9 @@ mat mapping(mat cov_est, mat theta_start, double update_w,
      * Parameters
      * ----------
      *
-     *  cov_est : mat
-     *      The covariance of the data for the current tau values, should
-     *      be P x P.
+     *  data : mat
+     *      The odata for the current tau values, should
+     *      be N x P.
      *  theta_start : mat
      *      The starting value for theta, should be P x P.
      *  update_w : double
@@ -44,7 +43,10 @@ mat mapping(mat cov_est, mat theta_start, double update_w,
      *      current estimate for theta.
      */
 
-    int P = cov_est.n_cols;
+    int N = data.n_rows;
+    int P = data.n_cols;
+
+    mat cov_est = cov(data)
 
     // TODO may not need to fill theta_p and inv_theta with 0s
     // proposed theta estimate
@@ -97,7 +99,7 @@ mat mapping(mat cov_est, mat theta_start, double update_w,
 
 // TODO document
 // [[Rcpp::export]]
-double gg_log_likelihood(mat data, mat theta_i, double regularizer) {
+double prox_gradient_ll(mat data, mat theta_i, double regularizer) {
     /* Generates the log-likelihood for the specified theta and
      * tau values
      *

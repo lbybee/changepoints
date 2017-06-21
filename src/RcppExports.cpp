@@ -6,40 +6,94 @@
 
 using namespace Rcpp;
 
-// mapping
-mat mapping(mat cov_est, mat theta_start, double update_w, double update_change, double regularizer, int max_iter, double tol);
-RcppExport SEXP changepoints_mapping(SEXP cov_estSEXP, SEXP theta_startSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP regularizerSEXP, SEXP max_iterSEXP, SEXP tolSEXP) {
+// latent_dirichlet_allocation
+List latent_dirichlet_allocation(mat corpus, List latent_vars, int niters, double alpha, double beta);
+RcppExport SEXP changepoints_latent_dirichlet_allocation(SEXP corpusSEXP, SEXP latent_varsSEXP, SEXP nitersSEXP, SEXP alphaSEXP, SEXP betaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< mat >::type cov_est(cov_estSEXP);
+    Rcpp::traits::input_parameter< mat >::type corpus(corpusSEXP);
+    Rcpp::traits::input_parameter< List >::type latent_vars(latent_varsSEXP);
+    Rcpp::traits::input_parameter< int >::type niters(nitersSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(latent_dirichlet_allocation(corpus, latent_vars, niters, alpha, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// latent_dirichlet_allocation_ll
+double latent_dirichlet_allocation_ll(mat corpus, List latent_vars);
+RcppExport SEXP changepoints_latent_dirichlet_allocation_ll(SEXP corpusSEXP, SEXP latent_varsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type corpus(corpusSEXP);
+    Rcpp::traits::input_parameter< List >::type latent_vars(latent_varsSEXP);
+    rcpp_result_gen = Rcpp::wrap(latent_dirichlet_allocation_ll(corpus, latent_vars));
+    return rcpp_result_gen;
+END_RCPP
+}
+// prox_gradient_mapping
+mat prox_gradient_mapping(mat data, mat theta_start, double update_w, double update_change, double regularizer, int max_iter, double tol);
+RcppExport SEXP changepoints_prox_gradient_mapping(SEXP dataSEXP, SEXP theta_startSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP regularizerSEXP, SEXP max_iterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type data(dataSEXP);
     Rcpp::traits::input_parameter< mat >::type theta_start(theta_startSEXP);
     Rcpp::traits::input_parameter< double >::type update_w(update_wSEXP);
     Rcpp::traits::input_parameter< double >::type update_change(update_changeSEXP);
     Rcpp::traits::input_parameter< double >::type regularizer(regularizerSEXP);
     Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(mapping(cov_est, theta_start, update_w, update_change, regularizer, max_iter, tol));
+    rcpp_result_gen = Rcpp::wrap(prox_gradient_mapping(data, theta_start, update_w, update_change, regularizer, max_iter, tol));
     return rcpp_result_gen;
 END_RCPP
 }
-// gg_log_likelihood
-double gg_log_likelihood(mat data, mat theta_i, double regularizer);
-RcppExport SEXP changepoints_gg_log_likelihood(SEXP dataSEXP, SEXP theta_iSEXP, SEXP regularizerSEXP) {
+// prox_gradient_ll
+double prox_gradient_ll(mat data, mat theta_i, double regularizer);
+RcppExport SEXP changepoints_prox_gradient_ll(SEXP dataSEXP, SEXP theta_iSEXP, SEXP regularizerSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< mat >::type data(dataSEXP);
     Rcpp::traits::input_parameter< mat >::type theta_i(theta_iSEXP);
     Rcpp::traits::input_parameter< double >::type regularizer(regularizerSEXP);
-    rcpp_result_gen = Rcpp::wrap(gg_log_likelihood(data, theta_i, regularizer));
+    rcpp_result_gen = Rcpp::wrap(prox_gradient_ll(data, theta_i, regularizer));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rank_one
+List rank_one(mat data, int buff, float regularizer, int tau, int max_iter, float update_w, float update_change, int mapping_iter, float tol);
+RcppExport SEXP changepoints_rank_one(SEXP dataSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP tauSEXP, SEXP max_iterSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP mapping_iterSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type buff(buffSEXP);
+    Rcpp::traits::input_parameter< float >::type regularizer(regularizerSEXP);
+    Rcpp::traits::input_parameter< int >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
+    Rcpp::traits::input_parameter< float >::type update_w(update_wSEXP);
+    Rcpp::traits::input_parameter< float >::type update_change(update_changeSEXP);
+    Rcpp::traits::input_parameter< int >::type mapping_iter(mapping_iterSEXP);
+    Rcpp::traits::input_parameter< float >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(rank_one(data, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol));
     return rcpp_result_gen;
 END_RCPP
 }
 
+RcppExport SEXP changepoints_gg_log_likelihood(SEXP, SEXP, SEXP);
+RcppExport SEXP changepoints_mapping(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+
 static const R_CallMethodDef CallEntries[] = {
-    {"changepoints_mapping", (DL_FUNC) &changepoints_mapping, 7},
+    {"changepoints_latent_dirichlet_allocation", (DL_FUNC) &changepoints_latent_dirichlet_allocation, 5},
+    {"changepoints_latent_dirichlet_allocation_ll", (DL_FUNC) &changepoints_latent_dirichlet_allocation_ll, 2},
+    {"changepoints_prox_gradient_mapping", (DL_FUNC) &changepoints_prox_gradient_mapping, 7},
+    {"changepoints_prox_gradient_ll", (DL_FUNC) &changepoints_prox_gradient_ll, 3},
+    {"changepoints_rank_one", (DL_FUNC) &changepoints_rank_one, 9},
     {"changepoints_gg_log_likelihood", (DL_FUNC) &changepoints_gg_log_likelihood, 3},
+    {"changepoints_mapping",           (DL_FUNC) &changepoints_mapping,           7},
     {NULL, NULL, 0}
 };
 

@@ -1,26 +1,54 @@
-simulated_annealing <- function(data, bbmod_vals, bbmod_params, bbmod_method, bbmod_ll, niter, min_beta, buff){
-    """simulated annealing method for estimating chagne-points, returns the index of
-    the estimated change-point
+simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
+                                niter=500, min_beta=1e-4, buff=100,
+                                bbmod_method_params=list(),
+                                bbmod_ll_params=list()){
+    "simulated annealing for esitmating change-points, returns a list
+    containing the location of the estimated change-point as well as the
+    estimated black box model values
 
-    Parameters
-    ----------
+    Paramters
+    ---------
 
-        niter : int
-            number of simulated annealing iterations
-        min_beta : double
-            minimum temperature to reach
-        buff : int
-            distance from edge to maintain for search
+    data : matrix
+        N x P matrix of actual data.  Note that given the way this is passed
+        bbmod_method and bbmod_ll this could possibly be overloaded to handle
+        more complex data structures.  The key is that we assume that there
+        are N rows.  This is key because we must subset data for bbmod_method
+        and bbmod_ll.
+    bbmod_init_vals : arbitrary
+        matrix of initial values for bbmod.  Again, this can also be
+        overloaded.  Note that in the GGM case this is a P x P matrix for
+        the theta values, but in the LDA case this can be both the
+        topic-document proportions and the term-topic proportions (so a
+        list of both).
+    bbmod_method : function
+        function used to estimate bbmod_vals
+        Note that this should be set up to work as
+        bbmod_method(data, init_vals, additional_parameters...)
+    bbmod_ll : function
+        function used to estimate the log likelihood for the bbmod
+        Note that this should be set up to work as
+        bbmod_ll(data, init_vals, additional_parameters...)
+    niter : scalar
+        number of simulated annealing iterations
+    min_beta : scalar
+        min beta to stop method when reached
+    buff : scalar
+        distance from edge of sample to be maintained for search
+    bbmod_method_params : list
+        any additional parameters that are to be passed to bbmod_method
+    bbmod_ll_params : list
+        any additional parameters that are to be passed to bbmod_ll
 
     Returns
     -------
-        int index of change-point location
-    """
+    list
+        tau : change-point
+        bbmod_vals : list of bbmod_vals for each subset
+    "
 
-    # TODO handle differently in class
-    bbmod_vals = list()
-    bbmod_vals[1] = bbmod_init_vals
-    bbmod_vals[2] = bbmod_init_vals
+    # TODO add support for different init vals
+    bbmod_vals = c(bbmod_init_vals, bbmod_init_vals)
 
     # initialize parameters
     N = dim(data)[1]
@@ -33,17 +61,25 @@ simulated_annealing <- function(data, bbmod_vals, bbmod_params, bbmod_method, bb
 
         if(tau == taup){
 
-            bbmod_val[1] = bbmod_method(data, tau, bbmod_val[1], bbmod_params)
-            bbmod_val[2] = bbmod_method(data, tau, bbmod_val[2], bbmod_params)
+            bbmod_vals[1] = do.call(bbmod_method, c(data[1:tau,],
+                                                    bbmod_vals[1],
+                                                    bbmod_method_params))
+            bbmod_vals[2] = do.call(bbmod_method, c(data[(tau+1):N,],
+                                                    bbmod_vals[2],
+                                                    bbmod_method_params))
 
-            ll0 = bbmod_ll(data, tau, bbmod_val[1], bbmod_params)
-            ll1 = bbmod_ll(data, tau, bbmod_val[2], bbmod_params)
+            ll0 = do.call(bbmod_ll, c(data[1:tau,], bbmod_vals[1],
+                                      bbmod_ll_params))
+            ll1 = do.call(bbmod_ll, c(data[(tau+1):N,], bbmod_vals[2],
+                                      bbmod_ll_params))
             ll = ll0 + ll1
         }
 
         tau_p = sample(1:N, 1)
-        ll0_p = bbmod_ll(data, tau, bbmod_val[1], bbmod_params)
-        ll1_p = bbmod_ll(data, tau, bbmod_val[2], bbmod_params)
+        ll0_p = do.call(bbmod_ll, c(data[1:tau_p,], bbmod_vals[1],
+                                    bbmod_ll_params))
+        ll1_p = do.call(bbmod_ll, c(data[(tau_p+1):N,], bbmod_vals[2],
+                                    bbmod_ll_params))
         ll_p = ll0_p + ll1_p
 
         prob = min(1, exp((ll_p - ll) / beta))
@@ -56,66 +92,136 @@ simulated_annealing <- function(data, bbmod_vals, bbmod_params, bbmod_method, bb
 
         beta = min_beta^(iterations/niter)
     }
-    return(tau)
+    res = list()
+    res$tau = tau
+    res$bbmod_vals = bbmod_vals
+    return(res)
 }
 
 
-brute_force <- function(data, bbmod_init_vals, bbmod_params, bbmod_method, bbmod_ll, buff){
-    """brute force method for estimating change-points, returns the index of
+brute_force <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
+                        buff=100, bbmod_method_params=list(),
+                        bbmod_ll_params=list()){
+    "brute force method for estimating change-points, returns the index of
     the estimated change-point
 
-    Parameters
-    ----------
-    buff : int
-        distance from edge to maintain for search
+    data : matrix
+        N x P matrix of actual data.  Note that given the way this is passed
+        bbmod_method and bbmod_ll this could possibly be overloaded to handle
+        more complex data structures.  The key is that we assume that there
+        are N rows.  This is key because we must subset data for bbmod_method
+        and bbmod_ll.
+    bbmod_init_vals : arbitrary
+        matrix of initial values for bbmod.  Again, this can also be
+        overloaded.  Note that in the GGM case this is a P x P matrix for
+        the theta values, but in the LDA case this can be both the
+        topic-document proportions and the term-topic proportions (so a
+        list of both).
+    bbmod_method : function
+        function used to estimate bbmod_vals
+        Note that this should be set up to work as
+        bbmod_method(data, init_vals, additional_parameters...)
+    bbmod_ll : function
+        function used to estimate the log likelihood for the bbmod
+        Note that this should be set up to work as
+        bbmod_ll(data, init_vals, additional_parameters...)
+    buff : scalar
+        distance from edge of sample to be maintained for search
+    bbmod_method_params : list
+        any additional parameters that are to be passed to bbmod_method
+    bbmod_ll_params : list
+        any additional parameters that are to be passed to bbmod_ll
 
     Returns
     -------
-        int index of change-point location
-    """
+    list
+        tau : change-point
+        bbmod_vals : list of bbmod_vals for each subset
+    "
 
-    # TODO handle differently in class
-    bbmod_vals = list()
-    bbmod_vals[1] = bbmod_init_vals
-    bbmod_vals[2] = bbmod_init_vals
+    bbmod_vals = c(bbmod_init_vals, bbmod_init_vals)
 
     N = dim(data)[1]
     ll_l = c()
 
     for(i in buff:(N-buff)){
-        bbmod_val0 = bbmod_method(data, i, bbmod_val[0], bbmod_params)
-        bbmod_val1 = bbmod_method(data, i, bbmod_val[1], bbmod_params)
-        ll0 = bbmod_ll(data, i, bbmod_val0, bbmod_params)
-        ll1 = bbmod_ll(data, i, bbmod_val1, bbmod_params)
+        bbmod_vals0 = do.call(bbmod_method, c(data[1:i,], bbmod_vals[1],
+                                              bbmod_method_params))
+        bbmod_vals1 = do.call(bbmod_method, c(data[(i+1):N,], bbmod_vals[2],
+                                              bbmod_method_params))
+        ll0 = do.call(bbmod_ll, c(data[1:i,], bbmod_vals[1],
+                                  bbmod_ll_params))
+        ll1 = do.call(bbmod_ll, c(data[(i+1):N,], bbmod_vals[1],
+                                  bbmod_ll_params))
         ll_l = c(ll_l, ll0 + ll1)
     }
 
-    return(which.min(ll_l))
+    tau = which.min(ll_l)
+    bbmod_vals0 = do.call(bbmod_method, c(data[1:i,], bbmod_vals[1],
+                                          bbmod_method_params))
+    bbmod_vals1 = do.call(bbmod_method, c(data[(i+1):N,], bbmod_vals[2],
+                                          bbmod_method_params))
+    bbmod_vals = c(bbmod_vals0, bbmod_vals1)
+    res = list()
+    res$tau = tau
+    res$bbmod_vals = bbmod_vals
+    return(res)
 }
 
 
-binary_segmentation <- function(data, bbmod_init_vals, bbmod_params, bbmod_method, bbmod_ll, method, thresh, buff){
-    """handles the binary segmentation
+binary_segmentation <- function(data, bbmot_init_vals, cp_method, bbmod_method,
+                                bbmod_ll, thresh=0, buff=100,
+                                cp_method_params=list(),
+                                bbmod_method_params=list(),
+                                bbmod_ll_params=list()){
+    "handles the binary segmentation
 
     Parameters
     ----------
-    method : int
-        0 - simulated_annealing
-        1 - ran_one
-        2 - brute_force
-    thresh : double
-        threshold for ll diff to stop binary segmentation
-    buff : int
-        distance from edge to maintain for search
+
+    data : matrix
+        N x P matrix of actual data.  Note that given the way this is passed
+        bbmod_method and bbmod_ll this could possibly be overloaded to handle
+        more complex data structures.  The key is that we assume that there
+        are N rows.  This is key because we must subset data for bbmod_method
+        and bbmod_ll.
+    bbmod_init_vals : arbitrary
+        matrix of initial values for bbmod.  Again, this can also be
+        overloaded.  Note that in the GGM case this is a P x P matrix for
+        the theta values, but in the LDA case this can be both the
+        topic-document proportions and the term-topic proportions (so a
+        list of both).
+    cp_method : function
+        which method should be used to estimate the individual change-points
+        currently supports
+            1. simulated annealing
+            2. brute force
+    bbmod_method : function
+        function used to estimate bbmod_vals
+        Note that this should be set up to work as
+        bbmod_method(data, init_vals, additional_parameters...)
+    bbmod_ll : function
+        function used to estimate the log likelihood for the bbmod
+        Note that this should be set up to work as
+        bbmod_ll(data, init_vals, additional_parameters...)
+    thresh : scalar
+        threshold for likelihood comparison below which we no-longer accept
+        change-points
+    buff : scalar
+        distance from edge of sample to be maintained for search
+    bbmod_method_params : list
+        any additional parameters that are to be passed to bbmod_method
+    bbmod_ll_params : list
+        any additional parameters that are to be passed to bbmod_ll
 
     Returns
     -------
-    vector of estimated change-points
-    """
+    list
+        tau_l : change-point vector
+        bbmod_vals : list of bbmod_vals for each subset
+    "
 
-    data_base = data
-    bbmod_vals_base = list()
-    bbmod_vals_base[1] = bbmod_init_vals
+    bbmod_vals_base = c(bbmod_init_vals)
 
     d = dim(data)
     N = d[1]
@@ -136,24 +242,27 @@ binary_segmentation <- function(data, bbmod_init_vals, bbmod_params, bbmod_metho
 
             if(state_l[i] == 1){
 
-                data = data_base[cp_l[i]:cp_l[i+1],]
+                data = data[cp_l[i]:cp_l[i+1],]
                 Nt = dim(data)[1]
 
                 if(Nt > 2 * (buff + 1)){
 
-                    bbmod_vals = list()
-                    bbmod_vals[1] = bbmod_init_vals
-                    bbmod_vals[2] = bbmod_init_vals
+                    datat = data[cp_l[i]:cp_l[i+1],]
 
-                    if(method == 0){
-                        tau = simulated_annealing()
-                    }
-                    if(method == 2){
-                        tau = brute_force()
-                    }
+                    tres = do.call(cp_method, c(datat, bbmod_init_vals,
+                                                bbmod_method, bbmod_ll,
+                                                cp_method_params,
+                                                bbmod_method_params,
+                                                bbmod_ll_params))
+                    tau = tres$tau
+                    bbmod_vals = tres$bbmod_vals
 
-                    ll0 = bbmod_ll(data, tau, bbmod_vals[1], bbmod_params)
-                    ll1 = bbmod_ll(data, tau, bbmod_vals[2], bbmod_params)
+                    ll0 = do.call(bbmod_ll, c(datat[1:tau,],
+                                              bbmod_vals[1],
+                                              bbmod_ll_params))
+                    ll1 = do.call(bbmod_ll, c(datat[(tau+1):Nt,],
+                                              bbmod_vals[2],
+                                              bbmod_ll_params))
                     ll = ll0 + ll1
 
                     cond1 = (ll - ll_l[i]) > thresh * P
@@ -178,4 +287,23 @@ binary_segmentation <- function(data, bbmod_init_vals, bbmod_params, bbmod_metho
                     t_ll_l = c(t_ll_l, ll_l[i])
                     t_cp_l = c(t_cp_l, cp_l[i + 1])
                     t_state_l = c(t_state_l, 0)
-                    t_bbmod_vals_base = c(t_bbmod_vals, bbmod_vals_
+                    t_bbmod_vals_base = c(t_bbmod_vals, bbmod_vals_base[i])
+                }
+            }
+            else {
+                t_ll_l = c(t_ll_l, ll_l[i])
+                t_cp_l = c(t_cp_l, cp_l[i + 1])
+                t_state_l = c(t_state_l, 0)
+                t_bbmod_vals_base = c(t_bbmod_vals, bbmod_vals_base[i])
+            }
+        }
+        ll_l = t_ll_l
+        cp_l = t_cp_l
+        state_l = t_state_l
+        bbmod_vals_base = t_bbmod_vals_base
+    }
+    res = list()
+    res$tau_l = cp_l
+    res$bbmod_vals = bbmod_vals_base
+    return(res)
+}
