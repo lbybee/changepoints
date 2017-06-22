@@ -6,3 +6,6 @@ src/*.o
 src/*.so
 src/*.dll
 *~
+*.o
+*.so
+*.tar.gz
