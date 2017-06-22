@@ -1,11 +1,12 @@
 Package: changepoints
 Type: Package
-Title: Uses simulated annealing to estimate multiple changepoints for high-dimensional data.
-Version: 0.1
-Date: 2016-09-14
+Title: A package for high-dimensional and expensive change-point estimation.
+Version: 0.1.0
+Date: 2017-06-22
 Author: Leland Bybee
 Maintainer: Leland Bybee <lelandb@umich.edu>
-Description: Here is some stuff
+Description: This package contains a series of methods for estimating change-points given user specified black-box models.  The methods include binary segmentation for multiple change-point estimation. For estimating each individual change-point the package includes simulated annealing, brute force, and for Gaussian Graphical Models an applications specific rank-one update implementation.  Additionally, code for Gaussian Graphical Models and Latent Dirichlet Allocation is included.
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.3)
 LinkingTo: RcppArmadillo, Rcpp
+RoxygenNote: 6.0.1

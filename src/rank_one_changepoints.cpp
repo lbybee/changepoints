@@ -1,5 +1,5 @@
+#include "prox_gradient_ggm.h"
 #include <RcppArmadillo.h>
-#include <prox_gradient_ggm.h>
 
 using namespace std;
 using namespace Rcpp;
@@ -54,7 +54,7 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
 
     vec ll_l = zeros(N - 2 * buff + 1);
 
-    ll_l(tau) = ll;
+    ll_l(tau - buff) = ll;
 
     mat Sp0 = S0;
     mat Sp1 = S1;
@@ -148,10 +148,40 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
     return res;
 }
 
-
+// Rank one change-point estimation procedure
+//' @name rank_one
+//'
+//' @title method for estimating single-changepoint using special
+//'        structure of the GGM framework
+//'
+//' @description This is a method for estimating a single-changepoint
+//'              which takes advantage of the special structure
+//'              of the Gaussian graphical model.  It cannot take
+//'              arbitrary black-box models like simulated_annealing
+//'              or brute_force.  However, it can still be run within
+//'              binary segmentation.
+//'
+//' @param data N x P matrix corresponding to the raw data
+//' @param theta_init initial value for theta estimate
+//' @param buff distance to maintain from edge of sample
+//' @param regularizer regularizing constant, lambda
+//' @param tau initial estimate for change-point
+//' @param max_iter maximum number of rank-one updates to be
+//'        run
+//' @param update_w step size for prox-gradient
+//' @param update_change proportion of update_w to keep when
+//'        the algorithm fails to successfully estimate theta
+//' @param mapping_iter number of mapping iterations
+//' @param tol tolerance at which the algorithm stops running
+//'
+//' @return List containing the estimated change-point and
+//'         theta values
+//'
+//' @author Leland Bybee \email{leland.bybee@@gmail.com}
 // [[Rcpp::export]]
-List rank_one(mat data, int buff=10, float regularizer=1., int tau=-1,
-              int max_iter=25, float update_w=1., float update_change=0.9,
+List rank_one(arma::mat data, arma::mat theta_int, int buff=10,
+              float regularizer=1., int tau=-1, int max_iter=25,
+              float update_w=1., float update_change=0.9,
               int mapping_iter=1, float tol=0.00001){
     /* Does the rank one estimateion of the changepoint
      *
@@ -161,6 +191,9 @@ List rank_one(mat data, int buff=10, float regularizer=1., int tau=-1,
      *  data : mat
      *      N x P matrix containing the data for estimateion, note data
      *      should be mean centered
+     *  theta_int : mat
+     *      Initial value of theta used to align rank_one with the
+     *      other methods
      *  buff : int
      *      buffer to keep proposal from edge
      *  regularizer : float
@@ -181,7 +214,7 @@ List rank_one(mat data, int buff=10, float regularizer=1., int tau=-1,
      * Returns
      * -------
      *
-     *  int estimate of tau
+     *  List containing change-point estimate and theta estimates
      */
 
     int N = data.n_rows;
@@ -193,10 +226,12 @@ List rank_one(mat data, int buff=10, float regularizer=1., int tau=-1,
 
     int iterations = 0;
 
-    mat S_inv = inv(cov(data));
+//    mat S_inv = inv(cov(data));
 
-    mat theta0 = S_inv;
-    mat theta1 = S_inv;
+//    mat theta0 = S_inv;
+//    mat theta1 = S_inv;
+    mat theta0 = theta_int;
+    mat theta1 = theta_int;
 
     mat S0;
     mat S1;
@@ -214,13 +249,19 @@ List rank_one(mat data, int buff=10, float regularizer=1., int tau=-1,
         mat data0 = data.rows(0, tau-1);
         mat data1 = data.rows(tau, N-1);
 
-        temp_regularizer = regularizer * sqrt(log(P) / tau);
-        theta0 = prox_gradient_mapping(data0, theta0, update_w, update_change,
-                                       temp_regularizer, mapping_iter, tol);
-        temp_regularizer = regularizer * sqrt(log(P) / (N - tau));
-        theta1 = prox_gradient_mapping(data1, theta1, update_w, update_change,
-                                       temp_regularizer, mapping_iter, tol);
+        // TODO this is generated both inside and outside prox_gradient
+        // should be fixed cleanly
+        S0 = cov(data0);
+        S1 = cov(data1);
 
+        temp_regularizer = regularizer * sqrt(log(P) / tau);
+        theta0 = prox_gradient_mapping(data0, theta0, update_w,
+                                       update_change, temp_regularizer,
+                                       mapping_iter, tol);
+        temp_regularizer = regularizer * sqrt(log(P) / (N - tau));
+        theta1 = prox_gradient_mapping(data1, theta1, update_w,
+                                       update_change, temp_regularizer,
+                                       mapping_iter, tol);
         ll_res = log_likelihood_rank_one(data, S0, S1, theta0, theta1, buff,
                                          tau, regularizer);
         tau = ll_res("tau");
@@ -228,6 +269,7 @@ List rank_one(mat data, int buff=10, float regularizer=1., int tau=-1,
         ll1 = ll_res("ll1");
         ll_mod = ll_res("ll_mod");
         iterations += 1;
+        printf("%d\n", iterations);
     }
     List bbmod_vals = List(2);
     bbmod_vals(0) = theta0;

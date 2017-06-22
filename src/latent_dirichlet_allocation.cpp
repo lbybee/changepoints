@@ -1,3 +1,5 @@
+// [[Rcpp::depends(RcppArmadillo)]]
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -74,8 +76,8 @@ mat phi_sampler(mat phi, mat nw, vec nwsum, double beta){
 }
 
 
-int z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
-              vec nwsum, double alpha, double beta){
+List z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
+               vec nwsum, double alpha, double beta){
     /* samples the topic for each document/word
      *
      * Parameters
@@ -106,7 +108,12 @@ int z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
      *
      * Returns
      * -------
-     *  int topic assignment
+     *  List of updated elements
+     *      topic
+     *      nw
+     *      nd
+     *      nwsum
+     *      ndsum
      */
 
     int D = corpus.n_rows;
@@ -123,8 +130,6 @@ int z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
 
     double Vbeta = V * beta;
     double Kalpha = K * alpha;
-
-    vec p = zeros(K);
 
     // do multinomial sampling via cumulative method
     for (int k = 0; k < K; k++){
@@ -159,10 +164,29 @@ int z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
     return(res);
 }
 
-
+// LDA black box model
+//' @name latent_dirichlet_allocation
+//'
+//' @title Estimates LDA topic model
+//'
+//' @description Estimates a LDA topic model using collapsed Gibbs
+//'              sampling
+//'
+//' @param corpus matrix corresponding to the DTM
+//' @param latent_vars List containing the set of variables to be
+//'         updated as part of the estimation procedure
+//' @param niters number of iterations for LDA to run
+//' @param alpha prior for theta
+//' @param beta prior for phi
+//'
+//' @return latent_vars updated version of List that was taken
+//'         as input
+//'
+//' @author Leland Bybee \email{leland.bybee@@gmail.com}
 // [[Rcpp::export]]
-List latent_dirichlet_allocation(mat corpus, List latent_vars, int niters=1500,
-                                 double alpha=1, double beta=1){
+List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
+                                 int niters=1500, double alpha=1,
+                                 double beta=1){
     /* handles the LDA estimation
      *
      * Parameters
@@ -203,18 +227,19 @@ List latent_dirichlet_allocation(mat corpus, List latent_vars, int niters=1500,
     int V = corpus.n_cols;
 
     int topic;
+    List z_update;
 
-    for (int liter = 1; liter <= niters; liters++){
+    for (int liter = 1; liter <= niters; liter++){
         // for all z_i
         for (int d = 0; d < D; d++) {
             for (int v = 0; v < V; v++) {
                 z_update = z_sampler(d, v, corpus, z, nd, nw, ndsum, nwsum,
                                      alpha, beta);
                 topic = z_update("topic");
-                nw = z_update("nw");
-                nd = z_update("nd");
-                nwsum = z_update("nwsum");
-                ndsum = z_update("ndsum");
+                mat nw = z_update("nw");
+                mat nd = z_update("nd");
+                vec nwsum = z_update("nwsum");
+                vec ndsum = z_update("ndsum");
                 z(d,v) = topic;
             }
         }
@@ -233,8 +258,24 @@ List latent_dirichlet_allocation(mat corpus, List latent_vars, int niters=1500,
 }
 
 
+// LDA log-likelihood
+//' @name latent_dirichlet_allocation_ll
+//'
+//' @title Generates the log-likelihood for a corresponding set of
+//'        latent variables
+//'
+//' @description Generates the log-likelihood for a corresponding set of
+//'              latent variables
+//'
+//' @param corpus matrix corresponding to the DTM
+//' @param latent_vars List containing the set of variables to be
+//'         updated as part of the estimation procedure
+//'
+//' @return log-likelihood generated from latent vars
+//'
+//' @author Leland Bybee \email{leland.bybee@@gmail.com}
 // [[Rcpp::export]]
-double latent_dirichlet_allocation_ll(mat corpus, List latent_vars){
+double latent_dirichlet_allocation_ll(arma::mat corpus, List latent_vars){
     /* generates the log likelihood for the corresponding LDA estimates
      *
      * Parameters
@@ -261,6 +302,7 @@ double latent_dirichlet_allocation_ll(mat corpus, List latent_vars){
     int D = corpus.n_rows;
     int V = corpus.n_cols;
     mat phi = latent_vars("phi");
+    mat z = latent_vars("z");
 
     double ll = 0.0;
     for (int d = 0; d<D; d++){

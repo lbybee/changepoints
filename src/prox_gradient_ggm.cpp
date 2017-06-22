@@ -1,15 +1,40 @@
+// [[Rcpp::depends(RcppArmadillo)]]
+
 #include <RcppArmadillo.h>
+#include "prox_gradient_ggm.h"
 
 using namespace std;
 using namespace Rcpp;
 using namespace arma;
 
 
-// TODO document
+// proximal gradient black box model
+//' @name prox_gradient_mapping
+//'
+//' @title Performs the proximal-gradient mapping operation to
+//'        estimate a regularized version of the inverse cov
+//'        matrix
+//'
+//' @description Performs the proximal-gradient mapping operation to
+//'              estimate a regularized version of the inverse cov
+//'              matrix
+//'
+//' @param data N x P matrix corresponding to the raw data
+//' @param theta_start initial value for theta estimate
+//' @param update_w step size for prox-gradient
+//' @param update_change proportion of update_w to keep when
+//'        the algorithm fails to successfully estimate theta
+//' @param regularizer regularizing constant, lambda
+//' @param max_iter number of mapping iterations
+//' @param tol tolerance at which the algorithm stops running
+//'
+//' @return theta estimate
+//'
+//' @author Leland Bybee \email{leland.bybee@@gmail.com}
 // [[Rcpp::export]]
-mat prox_gradient_mapping(mat data, mat theta_start, double update_w,
-                          double update_change, double regularizer,
-                          int max_iter, double tol){
+arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
+                                double update_w, double update_change,
+                                double regularizer, int max_iter, double tol){
     /* Produces the regularized estimation of the covariance matrix using
      * the proximal gradient procedure described in
      *
@@ -19,7 +44,7 @@ mat prox_gradient_mapping(mat data, mat theta_start, double update_w,
      * ----------
      *
      *  data : mat
-     *      The odata for the current tau values, should
+     *      The data for the current tau values, should
      *      be N x P.
      *  theta_start : mat
      *      The starting value for theta, should be P x P.
@@ -46,7 +71,7 @@ mat prox_gradient_mapping(mat data, mat theta_start, double update_w,
     int N = data.n_rows;
     int P = data.n_cols;
 
-    mat cov_est = cov(data)
+    mat cov_est = cov(data);
 
     // TODO may not need to fill theta_p and inv_theta with 0s
     // proposed theta estimate
@@ -93,13 +118,29 @@ mat prox_gradient_mapping(mat data, mat theta_start, double update_w,
         i += 1;
     }
 
-    return theta_p;
+    return(theta_p);
 }
 
 
-// TODO document
+// proximal gradient black box model log likelihood
+//' @name prox_gradient_ll
+//'
+//' @title estimates the log-likeihood for the corresponding
+//'        theta and data set
+//'
+//' @description estimates the log-likeihood for the corresponding
+//'              theta and data set
+//'
+//' @param data N x P matrix corresponding to the raw data
+//' @param theta_i estimate for theta
+//' @param regularizer regularizing constant, lambda
+//'
+//' @return log-likelihood
+//'
+//' @author Leland Bybee \email{leland.bybee@@gmail.com}
 // [[Rcpp::export]]
-double prox_gradient_ll(mat data, mat theta_i, double regularizer) {
+double prox_gradient_ll(arma::mat data, arma::mat theta_i,
+                        double regularizer) {
     /* Generates the log-likelihood for the specified theta and
      * tau values
      *
