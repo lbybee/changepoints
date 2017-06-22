@@ -69,7 +69,7 @@ mat phi_sampler(mat phi, mat nw, vec nwsum, double beta){
 
     for(int k = 0; k < K; k++){
         for(int v = 0; v < V; v++){
-            phi(k,v) = (nw(k,v) + beta) / (nwsum(k) + V * beta);
+            phi(k,v) = (nw(v,k) + beta) / (nwsum(k) + V * beta);
         }
     }
     return(phi);
@@ -122,11 +122,17 @@ List z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
     vec p = zeros(K);
 
     int topic = z(d,v);
+//    printf("1\n");
     int vcount = corpus(d,v);
+//    printf("2\n");
     nw(v,topic) -= vcount;
+//    printf("3\n");
     nd(d,topic) -= vcount;
+//    printf("4\n");
     nwsum(topic) -= vcount;
+//    printf("5\n");
     ndsum(d) -= vcount;
+//    printf("6\n");
 
     double Vbeta = V * beta;
     double Kalpha = K * alpha;
@@ -136,24 +142,40 @@ List z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
         p(k) = (nw(v,k) + beta) / (nwsum(k) + Vbeta) *
                 (nd(d,k) + alpha) / (ndsum(d) + Kalpha);
     }
+//    printf("7\n");
     // cumulative multinomial parameters
     for (int k = 1; k < K; k++){
         p(k) += p(k - 1);
     }
+//    printf("8\n");
 
     // scaled sample because of unnormalized p()
     double u = ((double)rand() / RAND_MAX) * p(K - 1);
 
-    for(topic = 0; topic < K; topic++) {
+    for(int topic = 0; topic < K; topic++) {
         if (p(topic) > u) {
             break;
         }
     }
+    int temp;
+//    printf("9\n");
+    temp = nw.n_rows;
+//    printf("%d\n", temp);
+    temp = nw.n_cols;
+//    printf("%d\n", temp);
+//    printf("ref\n");
+//    printf("%d\n", topic);
+//    printf("%d\n", K);
+
 
     nw(v,topic) += vcount;
+//    printf("10\n");
     nd(d,topic) += vcount;
+//    printf("11\n");
     nwsum(topic) += vcount;
+//    printf("12\n");
     ndsum(d) += vcount;
+//    printf("13\n");
 
     List res;
     res("topic") = topic;
@@ -229,6 +251,9 @@ List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
     int topic;
     List z_update;
 
+    // TODO remove
+    int temp;
+
     for (int liter = 1; liter <= niters; liter++){
         // for all z_i
         for (int d = 0; d < D; d++) {
@@ -236,16 +261,28 @@ List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
                 z_update = z_sampler(d, v, corpus, z, nd, nw, ndsum, nwsum,
                                      alpha, beta);
                 topic = z_update("topic");
+//                printf("a %d\n", topic);
+                temp = nw.n_rows;
+//                printf("a %d\n", temp);
+                temp = nw.n_cols;
+//                printf("a %d\n", temp);
                 mat nw = z_update("nw");
+                temp = nw.n_rows;
+//                printf("a %d\n", temp);
+                temp = nw.n_cols;
+//                printf("a %d\n", temp);
                 mat nd = z_update("nd");
                 vec nwsum = z_update("nwsum");
                 vec ndsum = z_update("ndsum");
                 z(d,v) = topic;
             }
         }
+        printf("AAAAA\n");
     }
     theta = theta_sampler(theta, nd, ndsum, alpha);
+    printf("1\n");
     phi = phi_sampler(phi, nw, nwsum, beta);
+    printf("2\n");
 
     latent_vars("z") = z;
     latent_vars("theta") = theta;
