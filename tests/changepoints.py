@@ -268,37 +268,45 @@ def simulated_annealing(data, theta_init, method, log_likelihood,
     return tau, theta_l
 
 
-def brute_force(data, buff=10, regularizer=1., update_w=1., mapping_iter=10, epsilon=0.):
-    """estimates a single changepoint using the brute force approach
+def brute_force(data, theta_init, method, log_likelihood,
+                buff=100, method_kwds=None, ll_kwds=None):
+    """estimates a single change-point using the simulated annealing
+    algorithm
 
     Parameters
     ----------
 
     data : array-like
         N x P matrix containing the data used for estimation
+    theta_init : array-like
+        starting value for theta estimate
+    method : function
+        black box method
+    log_likelihood : function
+        corresponding black-box log-likelihood
+    niter : scalar
+        number of simulated annealing iterations to run
+    min_beta : scalar
+        minimum temperature
     buff : scalar
-        buffer to keep proposals away from boundary
-    regularizer : scalar
-        regularizing constant
-    mapping_kwds : None or dict-like
-        key words for mapping fn
+        distance from edge of sample to maintain during search
+    method_kwds : None or dict-like
+        keywords for method
+    ll_kwds : None or dict-like
+        keywords for log-likelihood
 
     Returns
     -------
-    tuple of tau_l (list) theta_l (list of arrays) and ll (scalar)
+    tuple containing tau estimate as well as theta estimates
     """
 
     n, p = data.shape
 
-    mapping_kwds = {"update_w": update_w,
-                    "update_change": 0.9,
-                    "regularizer": regularizer,
-                    "mapping_iter": mapping_iter,
-                    "tol": 0.0000001}
+    if method_kwds is None:
+        method_kwds = {}
 
-    S_inv = np.linalg.inv(np.cov(data.T) + np.eye(p) * epsilon)
-
-    theta_l = [S_inv, S_inv]
+    if ll_kwds is None:
+        ll_kwds = {}
 
     tau_l = []
     ll_l = []
@@ -306,42 +314,23 @@ def brute_force(data, buff=10, regularizer=1., update_w=1., mapping_iter=10, eps
     for taup in range(buff, n - buff):
 
         theta_l = [S_inv, S_inv]
-        S0 = np.cov(data[:taup,:].T)
-        mapping_kwds["regularizer"] = regularizer * np.sqrt(np.log(p) / data[:taup,:].shape[0])
-#        mapping_kwds["update_w"] = update_w * np.sqrt(np.log(p) / data[:taup,:].shape[0])
-        theta0 = mapping(S0, theta_l[0], **mapping_kwds)
-        S1 = np.cov(data[taup:,:].T)
-        mapping_kwds["regularizer"] = regularizer * np.sqrt(np.log(p) / data[taup:,:].shape[0])
-#        mapping_kwds["update_w"] = update_w * np.sqrt(np.log(p) / data[taup:,:].shape[0])
-        theta1 = mapping(S1, theta_l[1], **mapping_kwds)
-        theta_l = [theta0, theta1]
-
-        ll = log_likelihood(data, theta_l, [0, taup, n], regularizer, n)
+        theta_l[0] = mapping(data[0:tau,:], theta_l[0], **method_kwds)
+        theta_l[1] = mapping(data[tau:,:], theta_l[1], **method_kwds)
+        ll0 = log_likelihood(data[0:tau,:], theta_l[0], **ll_kwds)
+        ll1 = log_likelihood(data[tau:,:], theta_l[1], **ll_kwds)
+        ll = ll0 + ll1
         ll_l.append(ll)
         tau_l.append(taup)
-        print taup, np.linalg.norm(theta0), np.linalg.norm(theta1), np.sum(theta0 != 0), np.sum(theta1 != 0), ll
+        print taup, ll
 
     ind = np.argmax(ll_l)
     tau = tau_l[ind]
 
     theta_l = [S_inv, S_inv]
-    S0 = np.cov(data[:tau,:].T)
-    mapping_kwds["regularizer"] = regularizer * np.sqrt(np.log(p) / data[:tau,:].shape[0])
-#    mapping_kwds["update_w"] = update_w * np.sqrt(np.log(p) / data[:tau,:].shape[0])
-    theta0 = mapping(S0, theta_l[0], **mapping_kwds)
-    S1 = np.cov(data[tau:,:].T)
-    mapping_kwds["regularizer"] = regularizer * np.sqrt(np.log(p) / data[tau:,:].shape[0])
-#    mapping_kwds["update_w"] = update_w * np.sqrt(np.log(p) / data[tau:,:].shape[0])
-    theta1 = mapping(S1, theta_l[1], **mapping_kwds)
-    theta_l = [theta0, theta1]
+    theta_l[0] = mapping(data[0:tau,:], theta_l[0], **method_kwds)
+    theta_l[1] = mapping(data[tau:,:], theta_l[1], **method_kwds)
 
-    ll = ll_l[ind]
-
-#    plt.plot(ll)
-#    plt.savefig("test.pdf")
-#    plt.clf()
-
-    return tau_l + [tau], theta_l, ll, ll_l
+    return tau, theta_l
 
 
 def log_likelihood_rank_one(data, S_l, theta_l, buff, tau, regularizer, iteration):
