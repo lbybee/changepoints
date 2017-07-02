@@ -313,20 +313,20 @@ def brute_force(data, theta_init, method, log_likelihood,
 
     for taup in range(buff, n - buff):
 
-        theta_l = [S_inv, S_inv]
-        theta_l[0] = mapping(data[0:tau,:], theta_l[0], **method_kwds)
-        theta_l[1] = mapping(data[tau:,:], theta_l[1], **method_kwds)
-        ll0 = log_likelihood(data[0:tau,:], theta_l[0], **ll_kwds)
-        ll1 = log_likelihood(data[tau:,:], theta_l[1], **ll_kwds)
+        theta_l = [theta_init, theta_init]
+        theta_l[0] = mapping(data[0:taup,:], theta_l[0], **method_kwds)
+        theta_l[1] = mapping(data[taup:,:], theta_l[1], **method_kwds)
+        ll0 = log_likelihood(data[0:taup,:], theta_l[0], **ll_kwds)
+        ll1 = log_likelihood(data[taup:,:], theta_l[1], **ll_kwds)
         ll = ll0 + ll1
         ll_l.append(ll)
         tau_l.append(taup)
         print taup, ll
 
-    ind = np.argmax(ll_l)
+    ind = np.argmin(ll_l)
     tau = tau_l[ind]
 
-    theta_l = [S_inv, S_inv]
+    theta_l = [theta_init, theta_init]
     theta_l[0] = mapping(data[0:tau,:], theta_l[0], **method_kwds)
     theta_l[1] = mapping(data[tau:,:], theta_l[1], **method_kwds)
 
