@@ -71,6 +71,9 @@ arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
     int N = data.n_rows;
     int P = data.n_cols;
 
+    // update the regularizer to reflect data subset
+    regularizer *= sqrt(log(P) / N);
+
     mat cov_est = cov(data);
 
     // TODO may not need to fill theta_p and inv_theta with 0s
@@ -84,7 +87,7 @@ arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
 
     float delta_norm = norm(theta_k - theta_p) / norm(theta_k);
 
-    bool state = false;
+    bool state = true;
 
     while (state and i < max_iter) {
 
@@ -92,15 +95,31 @@ arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
             inv_theta = inv(theta_k);
             theta_p = theta_k - update_w * (cov_est - inv_theta);
             for (int j = 0; j < P; j++) {
-                for (int k = 0; k < P; k++) {
-                    if (theta_p(j,k) <= -regularizer) {
-                        theta_p(j,k) += regularizer;
+                // first we handle the diagonals
+                if (theta_p(j,j) <= -regularizer * update_w) {
+                    theta_p(j,j) += regularizer * update_w;
+                }
+                else if (theta_p(j,j) >= regularizer * update_w) {
+                    theta_p(j,j) -= regularizer * update_w;
+                }
+                else {
+                    theta_p(j,j) = 0;
+                }
+                // now we off diagonals.  Note that we only need
+                // to check the upper triangle because the matrix
+                // is symmetric
+                for (int k = j + 1; k < P; k++) {
+                    if (theta_p(j,k) <= -regularizer * update_w) {
+                        theta_p(j,k) += regularizer * update_w;
+                        theta_p(k,j) += regularizer * update_w;
                     }
-                    else if (theta_p(j,k) >= regularizer) {
-                        theta_p(j,k) -= regularizer;
+                    else if (theta_p(j,k) >= regularizer * update_w) {
+                        theta_p(j,k) -= regularizer * update_w;
+                        theta_p(k,j) -= regularizer * update_w;
                     }
                     else {
                         theta_p(j,k) = 0;
+                        theta_p(k,j) = 0;
                     }
                 }
             }
@@ -175,10 +194,8 @@ double prox_gradient_ll(arma::mat data, arma::mat theta_i,
     int N = data.n_rows;
     int P = data.n_cols;
 
-    // new
     mat S = cov(data);
-
-    mat TdS = theta_i % S;
+    mat TdS = theta_i * S;
     double tr_TdS = trace(TdS);
 
     double sign;

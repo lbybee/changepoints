@@ -97,17 +97,18 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
             ll = ll0 + ll1
         }
 
-        tau_p = sample(buff:(N-buff), 1)
-        ll0_p = do.call(bbmod_ll, c(list(data[1:tau_p,], bbmod_vals[[1]]),
-                                    bbmod_ll_params))
-        ll1_p = do.call(bbmod_ll, c(list(data[(tau_p+1):N,], bbmod_vals[[2]]),
-                                    bbmod_ll_params))
-        ll_p = ll0_p + ll1_p
+        taup = sample(buff:(N-buff), 1)
+        ll0p = do.call(bbmod_ll, c(list(data[1:taup,], bbmod_vals[[1]]),
+                                   bbmod_ll_params))
+        ll1p = do.call(bbmod_ll, c(list(data[(taup+1):N,], bbmod_vals[[2]]),
+                                   bbmod_ll_params))
+        llp = ll0p + ll1p
 
-        prob = min(1, exp((ll_p - ll) / beta))
+        prob = min(1, exp((llp - ll) / beta))
 
         u = runif(1)
 
+        print(paste(prob, u, ll, llp, tau, taup, beta))
         if (prob > u){
             tau = taup
         }

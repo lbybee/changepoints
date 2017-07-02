@@ -345,6 +345,7 @@ double latent_dirichlet_allocation_ll(arma::mat corpus, List latent_vars){
     for (int d = 0; d<D; d++){
         for(int v = 0; v<V; v++){
             ll += log(corpus(d,v) * phi(z(d,v),v));
+            printf("%f\n", ll);
         }
     }
     return(ll);
