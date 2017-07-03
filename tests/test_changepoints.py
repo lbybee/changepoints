@@ -28,6 +28,11 @@ res_sa = simulated_annealing(scp_data, init, mapping, log_likelihood, buff=10,
 res_bf = brute_force(scp_data, init, mapping, log_likelihood, buff=10,
                      method_kwds=method_kwds, ll_kwds=ll_kwds)
 
+# rank one with prox gradient
+res_ro = rank_one(scp_data, init, regularizer=0.1, update_w=0.1, buff=10,
+                  max_iter=5)
+
+
 t2 = datetime.now()
 print t2 - t1
 #res = simulated_annealing(scp_data, Tmin=1./100, Tmax=1., regularizer=0.1,

@@ -254,11 +254,11 @@ List rank_one(arma::mat data, arma::mat theta_int, int buff=10,
         S0 = cov(data0);
         S1 = cov(data1);
 
-        temp_regularizer = regularizer * sqrt(log(P) / tau);
+//        temp_regularizer = regularizer * sqrt(log(P) / tau);
         theta0 = prox_gradient_mapping(data0, theta0, update_w,
                                        update_change, temp_regularizer,
                                        mapping_iter, tol);
-        temp_regularizer = regularizer * sqrt(log(P) / (N - tau));
+//        temp_regularizer = regularizer * sqrt(log(P) / (N - tau));
         theta1 = prox_gradient_mapping(data1, theta1, update_w,
                                        update_change, temp_regularizer,
                                        mapping_iter, tol);

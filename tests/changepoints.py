@@ -452,12 +452,14 @@ def log_likelihood_rank_one(data, S_l, theta_l, buff, tau, regularizer, iteratio
     return ind + buff + 1, ll_l[ind]
 
 
-def rank_one(data, buff=10, regularizer=1., tau=-1, max_iter=25,
+def rank_one(data, theta_init, buff=10, regularizer=1., tau=-1, max_iter=25,
              update_w=1, mapping_iter=1):
     """estimates the single changepoint using the rank-one method
 
     data : array-like
         N x P matrix containing the data used for estimation
+    theta_init : array-like
+        P x P matrix initial value for theta
     buff : scalar
         buffer to keep proposals away from boundary
     regularizer : scalar
@@ -480,33 +482,23 @@ def rank_one(data, buff=10, regularizer=1., tau=-1, max_iter=25,
     if tau == -1:
         tau = np.random.randint(buff, n - buff - 1)
 
-    mapping_kwds = {"update_w": update_w,
-                    "update_change": 0.9,
-                    "regularizer": regularizer,
-                    "mapping_iter": mapping_iter,
-                    "tol": 0.000001}
+    method_kwds = {"update_w": update_w,
+                   "update_change": 0.9,
+                   "regularizer": regularizer,
+                   "mapping_iter": mapping_iter,
+                   "tol": 0.000001}
 
     iterations = 0
     taup = -1
 
-    S_inv = np.linalg.inv(np.cov(data.T) + 1)
-
-    theta_l = [S_inv, S_inv]
+    theta_l = [theta_init, theta_init]
 
     tau_l = []
 
     while iterations < max_iter:
 
-#        theta_l = [S_inv, S_inv]
-        S0 = np.cov(data[:tau,:].T)
-        mapping_kwds["regularizer"] = regularizer * np.sqrt(np.log(p) / data[:tau,:].shape[0])
-#        mapping_kwds["update_w"] = update_w * np.sqrt(np.log(p) / data[:tau,:].shape[0])
-        theta0 = mapping(S0, theta_l[0], **mapping_kwds)
-        S1 = np.cov(data[tau:,:].T)
-        mapping_kwds["regularizer"] = regularizer * np.sqrt(np.log(p) / data[tau:,:].shape[0])
-#        mapping_kwds["update_w"] = update_w * np.sqrt(np.log(p) / data[tau:,:].shape[0])
-        theta1 = mapping(S1, theta_l[1], **mapping_kwds)
-        theta_l = [theta0, theta1]
+        theta_l[0] = mapping(data[0:tau,:], theta_l[0], **method_kwds)
+        theta_l[1] = mapping(data[tau:,:], theta_l[1], **method_kwds)
 
 #        S_l = [data[:tau,:].T.dot(data[:tau,:]) / data[:tau,:].shape[0],
 #               data[tau:,:].T.dot(data[tau:,:]) / data[tau:,:].shape[0]]
@@ -514,19 +506,12 @@ def rank_one(data, buff=10, regularizer=1., tau=-1, max_iter=25,
 
         tau, ll = log_likelihood_rank_one(data, S_l, theta_l, buff, tau,
                                           regularizer, iterations)
-        log_likelihood(data, theta_l, [0, tau, n], regularizer, n)
 
-#        ll_l = []
-#        for stp in range(buff, n - buff):
-#            ll_l.append(log_likelihood(data, theta_l, [0, stp, n], regularizer, n))
-#        plt.plot([l + buff for l in ll_l])
-#        plt.savefig("%d_%d.pdf" % (iterations, tau))
-#        plt.clf()
         iterations += 1
         tau_l.append(tau)
         print iterations, ll, np.sum(theta_l[0] == 0), np.sum(theta_l[1] == 0), np.linalg.norm(theta_l[0]), np.linalg.norm(theta_l[1]), tau
 
-    return tau_l, theta_l, ll
+    return tau_l[-1], theta_l
 
 
 def cp_data_ll(data, tau, regularizer=1., update_w=1., mapping_iter=1.):

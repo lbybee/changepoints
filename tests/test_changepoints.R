@@ -34,7 +34,7 @@ res_bf = brute_force(scp_data, init, prox_gradient_mapping,
                      prox_gradient_ll, buff=10,
                      bbmod_method_params=prox_gradient_params,
                      bbmod_ll_params=prox_gradient_ll_params)
-#res_ro = rank_one(t_data, diag(10))
+res_ro = rank_one(scp_data, init, update_w=0.1, regularizer=0.1)
 #res_bs = binary_segmentation(t_data, diag(10), simulated_annealing,
 #                             prox_gradient_mapping,
 #                             prox_gradient_ll,
