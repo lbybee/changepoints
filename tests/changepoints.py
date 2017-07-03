@@ -368,10 +368,6 @@ def log_likelihood_rank_one(data, S_l, theta_l, buff, tau, regularizer, iteratio
                         np.sqrt(np.log(p) / tau) * regularizer * np.linalg.norm(theta_l[0], 1))
     ll += ((n - tau) / (2.) * (-det_l[1] + np.trace(TdS_l[1])) +
                                np.sqrt(np.log(p) / (n - tau)) * regularizer * np.linalg.norm(theta_l[1], 1))
-#    ll = ((-det_l[0] + np.trace(TdS_l[0])) +
-#          np.sqrt(np.log(p) / tau) * regularizer * np.linalg.norm(theta_l[0], 1))
-#    ll += ((-det_l[1] + np.trace(TdS_l[1])) +
-#           np.sqrt(np.log(p) / (n - tau)) * regularizer * np.linalg.norm(theta_l[1], 1))
     ll_l = [-ll]
 
     Sp_l = [S_i[:] for S_i in S_l]
@@ -379,33 +375,18 @@ def log_likelihood_rank_one(data, S_l, theta_l, buff, tau, regularizer, iteratio
     ll_l1 = []
 
     for i in range(tau - 1, buff, -1):
-#        Sp_l = [data[:i,:].T.dot(data[:i,:]) / data[:i,:].shape[0],
-#                data[i:,:].T.dot(data[i:,:]) / data[i:,:].shape[0]]
-#        Sp_l = [np.cov(data[:i,:].T), np.cov(data[i:,:].T)]
-#        mn1 = np.mean(data[:i,:], axis=0)
-#        mn2 = np.mean(data[i:,:], axis=0)
-#        roneupdate1 = np.outer((data[i,:] - mn1), (data[i,:] - mn1))
-#        roneupdate2 = np.outer((data[i,:] - mn2), (data[i,:] - mn2))
         rank_one_update = np.outer(data[i,:], data[i,:])
 
         Sp_l = [((i) * Sp_l[0] - rank_one_update) / (i - 1),
                 ((n - i - 1) * Sp_l[1] + rank_one_update) / (n - i)]
-#        Sp_l = [Sp_l[0] - rank_one_update, Sp_l[1] + rank_one_update]
-#        Sp_l = [np.cov(data[:i,:].T), np.cov(data[i:,:].T)]
 
 
         TdSp_l = [theta_i.dot(Sp_i) for theta_i, Sp_i in zip(theta_l, Sp_l)]
-#        TdSp_l = [TdSp_l[0] - theta_l[0].dot(rank_one_update),
-#                  TdSp_l[1] + theta_l[1].dot(rank_one_update)]
 
         ll = (i / (2.) * (-det_l[0] + np.trace(TdSp_l[0])) +
                           np.sqrt(np.log(p) / i) * regularizer * np.linalg.norm(theta_l[0], 1))
         ll += ((n - i) / (2.) * (-det_l[1] + np.trace(TdSp_l[1])) +
                                  np.sqrt(np.log(p) / (n - i)) * regularizer * np.linalg.norm(theta_l[1], 1))
-#        ll = ((-det_l[0] + np.trace(TdSp_l[0])) +
-#              np.sqrt(np.log(p) / i) * regularizer * np.linalg.norm(theta_l[0], 1))
-#        ll += ((-det_l[1] + np.trace(TdSp_l[1])) +
-#               np.sqrt(np.log(p) / (n - i)) * regularizer * np.linalg.norm(theta_l[1], 1))
         ll_l1.append(-ll)
 
     ll_l1.reverse()
@@ -414,40 +395,22 @@ def log_likelihood_rank_one(data, S_l, theta_l, buff, tau, regularizer, iteratio
     ll_l2 = []
 
     for i in range(tau + 1, n - buff):
-#        Sp_l = [data[:i,:].T.dot(data[:i,:]) / data[:i,:].shape[0],
-#                data[i:,:].T.dot(data[i:,:]) / data[i:,:].shape[0]]
-#        Sp_l = [np.cov(data[:i,:].T), np.cov(data[i:,:].T)]
         rank_one_update = np.outer(data[i,:], data[i,:])
 
         Sp_l = [((i - 1) * Sp_l[0] + rank_one_update) / (i),
                 ((n - i) * Sp_l[1] - rank_one_update) / (n - i - 1)]
-#        Sp_l = [Sp_l[0] + rank_one_update, Sp_l[1] - rank_one_update]
-#        Sp_l = [np.cov(data[:i,:].T), np.cov(data[i:,:].T)]
 
         TdSp_l = [theta_i.dot(Sp_i) for theta_i, Sp_i in zip(theta_l, Sp_l)]
-#        TdSp_l = [TdSp_l[0] + theta_l[0].dot(rank_one_update),
-#                  TdSp_l[1] - theta_l[1].dot(rank_one_update)]
 
         ll = (i / (2.) * (-det_l[0] + np.trace(TdSp_l[0])) +
                           np.sqrt(np.log(p) / i) * regularizer * np.linalg.norm(theta_l[0], 1))
         ll += ((n - i) / (2.) * (-det_l[1] + np.trace(TdSp_l[1])) +
                                  np.sqrt(np.log(p) / (n - i)) * regularizer * np.linalg.norm(theta_l[1], 1))
-#        ll = ((-det_l[0] + np.trace(TdSp_l[0])) +
-#              np.sqrt(np.log(p) / i) * regularizer * np.linalg.norm(theta_l[0], 1))
-#        ll += ((-det_l[1] + np.trace(TdSp_l[1])) +
-#               np.sqrt(np.log(p) / (n - i)) * regularizer * np.linalg.norm(theta_l[1], 1))
         ll_l2.append(-ll)
 
     ll_l = ll_l1 + ll_l + ll_l2
 
-#    print np.argmax(ll_l)
-#    print ll_l[20:130]
-
     ind = np.argmax(ll_l)
-
-    plt.plot(ll_l)
-    plt.savefig("ro_%d_%d.pdf" % (ind + buff, iteration))
-    plt.clf()
 
     return ind + buff + 1, ll_l[ind]
 
@@ -500,8 +463,6 @@ def rank_one(data, theta_init, buff=10, regularizer=1., tau=-1, max_iter=25,
         theta_l[0] = mapping(data[0:tau,:], theta_l[0], **method_kwds)
         theta_l[1] = mapping(data[tau:,:], theta_l[1], **method_kwds)
 
-#        S_l = [data[:tau,:].T.dot(data[:tau,:]) / data[:tau,:].shape[0],
-#               data[tau:,:].T.dot(data[tau:,:]) / data[tau:,:].shape[0]]
         S_l = [np.cov(data[:tau,:].T), np.cov(data[tau:,:].T)]
 
         tau, ll = log_likelihood_rank_one(data, S_l, theta_l, buff, tau,
