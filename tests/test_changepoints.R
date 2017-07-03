@@ -35,12 +35,16 @@ res_bf = brute_force(scp_data, init, prox_gradient_mapping,
                      bbmod_method_params=prox_gradient_params,
                      bbmod_ll_params=prox_gradient_ll_params)
 res_ro = rank_one(scp_data, init, update_w=0.1, regularizer=0.1)
-#res_bs = binary_segmentation(t_data, diag(10), simulated_annealing,
-#                             prox_gradient_mapping,
-#                             prox_gradient_ll,
-#                             cp_method_params=simulated_annealing_params,
-#                             bbmod_method_params=prox_gradient_params,
-#                             bbmod_ll_params=prox_gradient_ll_params)
+
+mcp_data = read.table("mcp.txt")
+mcp_data = as.matrix(mcp_data)
+
+res_bs = binary_segmentation(mcp_data, init, simulated_annealing,
+                             prox_gradient_mapping,
+                             prox_gradient_ll, buff=10,
+                             cp_method_params=simulated_annealing_params,
+                             bbmod_method_params=prox_gradient_params,
+                             bbmod_ll_params=prox_gradient_ll_params)
 
 # comparable tests to the above for LDA
 t_data <- sample(0:100, 1000, replace=TRUE)

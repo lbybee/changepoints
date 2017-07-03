@@ -9,3 +9,4 @@ src/*.dll
 *.o
 *.so
 *.tar.gz
+*.pyc

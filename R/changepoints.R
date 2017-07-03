@@ -79,6 +79,12 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
     iterations = 0
     beta = 1
 
+    print(niter)
+    print(min_beta)
+    print(buff)
+    print(bbmod_method_params)
+    print(bbmod_ll_params)
+
     while((beta > min_beta) & (iterations < niter)){
 
         if(tau == taup){
@@ -314,21 +320,21 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
 
             if(state_l[i] == 1){
 
-                data = data[cp_l[i]:cp_l[i+1],]
-                Nt = dim(data)[1]
+                datat = data[cp_l[i]:cp_l[i+1],]
+                Nt = dim(datat)[1]
 
                 if(Nt > 2 * (buff + 1)){
 
-                    datat = data[cp_l[i]:cp_l[i+1],]
+                    cp_method_params$bbmod_method_params = bbmod_method_params
+                    cp_method_params$bbmod_ll_params = bbmod_ll_params
 
-                    tres = do.call(cp_method, list(datat, bbmod_init_vals),
-                                                   bbmod_method, bbmod_ll,
-                                                   cp_method_params,
-                                                   bbmod_method_params,
-                                                   bbmod_ll_params)
+                    tres = do.call(cp_method, c(list(datat, bbmod_init_vals,
+                                                   bbmod_method, bbmod_ll),
+                                                   cp_method_params))
                     tau = tres$tau
                     bbmod_vals = tres$bbmod_vals
 
+                    print(paste(Nt, tau, length(datat), dim(datat)))
                     ll0 = do.call(bbmod_ll, c(list(datat[1:tau,],
                                                    bbmod_vals[[1]]),
                                               bbmod_ll_params))
@@ -340,11 +346,13 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                     cond1 = (ll - ll_l[i]) > thresh * P
                     cond2 = (ll > -1e15) & (ll < 1e15)
                     cond3 = (tau < Nt - buff) & (tau > buff)
+                    print(cond1)
+                    print(cond2)
+                    print(cond3)
                     cond = cond1 & cond2 & cond3
                 }
 
                 else{
-                    cond = FALSE
                 }
 
                 if(cond){
@@ -357,6 +365,7 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                 }
 
                 else{
+                    print("no")
                     t_ll_l = c(t_ll_l, ll_l[i])
                     t_cp_l = c(t_cp_l, cp_l[i + 1])
                     t_state_l = c(t_state_l, 0)
