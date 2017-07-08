@@ -21,5 +21,5 @@ Estimates the log-likeihood for the corresponding
              precision matrix and data set.
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

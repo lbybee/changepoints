@@ -183,7 +183,7 @@ List z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
 //' @return latent_vars Updated version of List that was taken
 //'         as input.
 //'
-//' @author \packageMaintainer{changepoints}
+//' @author \packageMaintainer{changepointsHD}
 // [[Rcpp::export]]
 List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
                                  int niters=1500, double alpha=1,
@@ -273,7 +273,7 @@ List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
 //'
 //' @return Log-likelihood estimate.
 //'
-//' @author \packageMaintainer{changepoints}
+//' @author \packageMaintainer{changepointsHD}
 // [[Rcpp::export]]
 double latent_dirichlet_allocation_ll(arma::mat corpus, List latent_vars){
     /* generates the log likelihood for the corresponding LDA estimates

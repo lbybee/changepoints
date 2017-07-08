@@ -177,7 +177,7 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
 //' @return List containing the estimated change-point and
 //'         theta values.
 //'
-//' @author \packageMaintainer{changepoints}
+//' @author \packageMaintainer{changepointsHD}
 // [[Rcpp::export]]
 List rank_one(arma::mat data, arma::mat theta_init, int buff=10,
               float regularizer=1., int tau=-1, int max_iter=25,

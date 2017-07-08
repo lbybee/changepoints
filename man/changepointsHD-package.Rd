@@ -1,12 +1,12 @@
-\name{changepoints-package}
-\alias{changepoints-package}
-\alias{changepoints}
+\name{changepointsHD-package}
+\alias{changepointsHD-package}
+\alias{changepointsHD}
 \docType{package}
 \title{
-\packageTitle{changepoints}
+\packageTitle{changepointsHD}
 }
 \description{
-\packageDescription{changepoints}
+\packageDescription{changepointsHD}
 }
 %\details{
 %\tabular{ll}{
@@ -17,9 +17,9 @@
 %Licence: \tab packageLicense{changepoints} \cr
 %}
 \author{
-\packageAuthor{changepoints}
+\packageAuthor{changepointsHD}
 
-Maintainer: \packageMaintainer{changepoints}
+Maintainer: \packageMaintainer{changepointsHD}
 }
 %\references{
 %~~ Literature or other references for background information ~~

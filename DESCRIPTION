@@ -1,4 +1,4 @@
-Package: changepoints_hd
+Package: changepointsHD
 Type: Package
 Title: Change-Point Estimation for Expensive and High-Dimensional Models
 Version: 0.2.0

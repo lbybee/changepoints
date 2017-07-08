@@ -20,5 +20,5 @@ Generates the log-likelihood for a corresponding set of
              latent variables.
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

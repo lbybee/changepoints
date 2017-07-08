@@ -52,5 +52,5 @@ Estimates multiple change-points using the binary-segmentation
              single change-point method for each sub-search.
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

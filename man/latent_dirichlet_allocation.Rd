@@ -28,5 +28,5 @@ Estimates a LDA topic model using collapsed Gibbs
              sampling.
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

@@ -45,5 +45,5 @@ This is a method for estimating a single-changepoint
              \code{binary segmentation}.
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

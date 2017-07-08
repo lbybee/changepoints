@@ -31,7 +31,7 @@
 #'
 #' @return List containing estimated change-point and black box model estimates.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
                                 niter=500, min_beta=1e-4, buff=100,
                                 bbmod_method_params=list(),
@@ -127,7 +127,7 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
 #'
 #' @return List containing estimated change-point and black box model estimates.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 
 brute_force <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
                         buff=100, bbmod_method_params=list(),
@@ -207,7 +207,7 @@ brute_force <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
 #'
 #' @return List containing estimated change-points and model estimates.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                                 bbmod_method, bbmod_ll, thresh=0, buff=100,
                                 cp_method_params=list(),

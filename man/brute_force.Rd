@@ -44,5 +44,5 @@ Estimates a single change-point by testing all possible
              change-points.
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

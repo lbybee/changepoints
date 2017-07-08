@@ -18,9 +18,9 @@
 #' @return latent_vars Updated version of List that was taken
 #'         as input.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 latent_dirichlet_allocation <- function(corpus, latent_vars, niters = 1500L, alpha = 1, beta = 1) {
-    .Call('changepoints_latent_dirichlet_allocation', PACKAGE = 'changepoints', corpus, latent_vars, niters, alpha, beta)
+    .Call('changepointsHD_latent_dirichlet_allocation', PACKAGE = 'changepointsHD', corpus, latent_vars, niters, alpha, beta)
 }
 
 #' @name latent_dirichlet_allocation_ll
@@ -36,9 +36,9 @@ latent_dirichlet_allocation <- function(corpus, latent_vars, niters = 1500L, alp
 #'
 #' @return Log-likelihood estimate.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 latent_dirichlet_allocation_ll <- function(corpus, latent_vars) {
-    .Call('changepoints_latent_dirichlet_allocation_ll', PACKAGE = 'changepoints', corpus, latent_vars)
+    .Call('changepointsHD_latent_dirichlet_allocation_ll', PACKAGE = 'changepointsHD', corpus, latent_vars)
 }
 
 #' @name prox_gradient_mapping
@@ -61,9 +61,9 @@ latent_dirichlet_allocation_ll <- function(corpus, latent_vars) {
 #'
 #' @return Theta (precision matrix) estimate.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 prox_gradient_mapping <- function(data, theta_start, update_w, update_change, regularizer, max_iter, tol) {
-    .Call('changepoints_prox_gradient_mapping', PACKAGE = 'changepoints', data, theta_start, update_w, update_change, regularizer, max_iter, tol)
+    .Call('changepointsHD_prox_gradient_mapping', PACKAGE = 'changepointsHD', data, theta_start, update_w, update_change, regularizer, max_iter, tol)
 }
 
 #' @name prox_gradient_ll
@@ -79,9 +79,9 @@ prox_gradient_mapping <- function(data, theta_start, update_w, update_change, re
 #'
 #' @return Log-likelihood estimate.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 prox_gradient_ll <- function(data, theta_i, regularizer) {
-    .Call('changepoints_prox_gradient_ll', PACKAGE = 'changepoints', data, theta_i, regularizer)
+    .Call('changepointsHD_prox_gradient_ll', PACKAGE = 'changepointsHD', data, theta_i, regularizer)
 }
 
 #' @name rank_one
@@ -112,8 +112,8 @@ prox_gradient_ll <- function(data, theta_i, regularizer) {
 #' @return List containing the estimated change-point and
 #'         theta values.
 #'
-#' @author \packageMaintainer{changepoints}
+#' @author \packageMaintainer{changepointsHD}
 rank_one <- function(data, theta_init, buff = 10L, regularizer = 1., tau = -1L, max_iter = 25L, update_w = 1., update_change = 0.9, mapping_iter = 1L, tol = 0.00001) {
-    .Call('changepoints_rank_one', PACKAGE = 'changepoints', data, theta_init, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol)
+    .Call('changepointsHD_rank_one', PACKAGE = 'changepointsHD', data, theta_init, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol)
 }
 

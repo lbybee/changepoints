@@ -1,4 +1,4 @@
-useDynLib(changepoints_hd)
+useDynLib(changepointsHD)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
 importFrom(stats, runif)

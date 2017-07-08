@@ -33,5 +33,5 @@ Performs the proximal-gradient mapping operation to
              http://dept.stat.lsa.umich.edu/~yvesa/sto_prox.pdf
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

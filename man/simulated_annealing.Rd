@@ -49,5 +49,5 @@ Estimates a single change-point using the simulated annealing
              method.
 }
 \author{
-\packageMaintainer{changepoints}
+\packageMaintainer{changepointsHD}
 }

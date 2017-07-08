@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // latent_dirichlet_allocation
 List latent_dirichlet_allocation(arma::mat corpus, List latent_vars, int niters, double alpha, double beta);
-RcppExport SEXP changepoints_latent_dirichlet_allocation(SEXP corpusSEXP, SEXP latent_varsSEXP, SEXP nitersSEXP, SEXP alphaSEXP, SEXP betaSEXP) {
+RcppExport SEXP changepointsHD_latent_dirichlet_allocation(SEXP corpusSEXP, SEXP latent_varsSEXP, SEXP nitersSEXP, SEXP alphaSEXP, SEXP betaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,7 +23,7 @@ END_RCPP
 }
 // latent_dirichlet_allocation_ll
 double latent_dirichlet_allocation_ll(arma::mat corpus, List latent_vars);
-RcppExport SEXP changepoints_latent_dirichlet_allocation_ll(SEXP corpusSEXP, SEXP latent_varsSEXP) {
+RcppExport SEXP changepointsHD_latent_dirichlet_allocation_ll(SEXP corpusSEXP, SEXP latent_varsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -35,7 +35,7 @@ END_RCPP
 }
 // prox_gradient_mapping
 arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start, double update_w, double update_change, double regularizer, int max_iter, double tol);
-RcppExport SEXP changepoints_prox_gradient_mapping(SEXP dataSEXP, SEXP theta_startSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP regularizerSEXP, SEXP max_iterSEXP, SEXP tolSEXP) {
+RcppExport SEXP changepointsHD_prox_gradient_mapping(SEXP dataSEXP, SEXP theta_startSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP regularizerSEXP, SEXP max_iterSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -52,7 +52,7 @@ END_RCPP
 }
 // prox_gradient_ll
 double prox_gradient_ll(arma::mat data, arma::mat theta_i, double regularizer);
-RcppExport SEXP changepoints_prox_gradient_ll(SEXP dataSEXP, SEXP theta_iSEXP, SEXP regularizerSEXP) {
+RcppExport SEXP changepointsHD_prox_gradient_ll(SEXP dataSEXP, SEXP theta_iSEXP, SEXP regularizerSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -65,7 +65,7 @@ END_RCPP
 }
 // rank_one
 List rank_one(arma::mat data, arma::mat theta_init, int buff, float regularizer, int tau, int max_iter, float update_w, float update_change, int mapping_iter, float tol);
-RcppExport SEXP changepoints_rank_one(SEXP dataSEXP, SEXP theta_initSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP tauSEXP, SEXP max_iterSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP mapping_iterSEXP, SEXP tolSEXP) {
+RcppExport SEXP changepointsHD_rank_one(SEXP dataSEXP, SEXP theta_initSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP tauSEXP, SEXP max_iterSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP mapping_iterSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -85,15 +85,15 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"changepoints_latent_dirichlet_allocation", (DL_FUNC) &changepoints_latent_dirichlet_allocation, 5},
-    {"changepoints_latent_dirichlet_allocation_ll", (DL_FUNC) &changepoints_latent_dirichlet_allocation_ll, 2},
-    {"changepoints_prox_gradient_mapping", (DL_FUNC) &changepoints_prox_gradient_mapping, 7},
-    {"changepoints_prox_gradient_ll", (DL_FUNC) &changepoints_prox_gradient_ll, 3},
-    {"changepoints_rank_one", (DL_FUNC) &changepoints_rank_one, 10},
+    {"changepointsHD_latent_dirichlet_allocation", (DL_FUNC) &changepointsHD_latent_dirichlet_allocation, 5},
+    {"changepointsHD_latent_dirichlet_allocation_ll", (DL_FUNC) &changepointsHD_latent_dirichlet_allocation_ll, 2},
+    {"changepointsHD_prox_gradient_mapping", (DL_FUNC) &changepointsHD_prox_gradient_mapping, 7},
+    {"changepointsHD_prox_gradient_ll", (DL_FUNC) &changepointsHD_prox_gradient_ll, 3},
+    {"changepointsHD_rank_one", (DL_FUNC) &changepointsHD_rank_one, 10},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_changepoints(DllInfo *dll) {
+RcppExport void R_init_changepointsHD(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

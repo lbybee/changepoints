@@ -29,7 +29,7 @@ using namespace arma;
 //'
 //' @return Theta (precision matrix) estimate.
 //'
-//' @author \packageMaintainer{changepoints}
+//' @author \packageMaintainer{changepointsHD}
 // [[Rcpp::export]]
 arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
                                 double update_w, double update_change,
@@ -127,7 +127,7 @@ arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
 //'
 //' @return Log-likelihood estimate.
 //'
-//' @author \packageMaintainer{changepoints}
+//' @author \packageMaintainer{changepointsHD}
 // [[Rcpp::export]]
 double prox_gradient_ll(arma::mat data, arma::mat theta_i,
                         double regularizer) {
