@@ -64,13 +64,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // rank_one
-List rank_one(arma::mat data, arma::mat theta_int, int buff, float regularizer, int tau, int max_iter, float update_w, float update_change, int mapping_iter, float tol);
-RcppExport SEXP changepoints_rank_one(SEXP dataSEXP, SEXP theta_intSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP tauSEXP, SEXP max_iterSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP mapping_iterSEXP, SEXP tolSEXP) {
+List rank_one(arma::mat data, arma::mat theta_init, int buff, float regularizer, int tau, int max_iter, float update_w, float update_change, int mapping_iter, float tol);
+RcppExport SEXP changepoints_rank_one(SEXP dataSEXP, SEXP theta_initSEXP, SEXP buffSEXP, SEXP regularizerSEXP, SEXP tauSEXP, SEXP max_iterSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP mapping_iterSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type theta_int(theta_intSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type theta_init(theta_initSEXP);
     Rcpp::traits::input_parameter< int >::type buff(buffSEXP);
     Rcpp::traits::input_parameter< float >::type regularizer(regularizerSEXP);
     Rcpp::traits::input_parameter< int >::type tau(tauSEXP);
@@ -79,7 +79,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< float >::type update_change(update_changeSEXP);
     Rcpp::traits::input_parameter< int >::type mapping_iter(mapping_iterSEXP);
     Rcpp::traits::input_parameter< float >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(rank_one(data, theta_int, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol));
+    rcpp_result_gen = Rcpp::wrap(rank_one(data, theta_init, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -3,86 +3,83 @@
 
 #' @name latent_dirichlet_allocation
 #'
-#' @title Estimates LDA topic model
+#' @title Estimates LDA topic model.
 #'
 #' @description Estimates a LDA topic model using collapsed Gibbs
-#'              sampling
+#'              sampling.
 #'
-#' @param corpus matrix corresponding to the DTM
+#' @param corpus Matrix corresponding to the DTM.
 #' @param latent_vars List containing the set of variables to be
-#'         updated as part of the estimation procedure
-#' @param niters number of iterations for LDA to run
-#' @param alpha prior for theta
-#' @param beta prior for phi
+#'         updated as part of the estimation procedure.
+#' @param niters Number of iterations for LDA to run.
+#' @param alpha Prior for theta.
+#' @param beta Prior for phi.
 #'
-#' @return latent_vars updated version of List that was taken
-#'         as input
+#' @return latent_vars Updated version of List that was taken
+#'         as input.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
+#' @author \packageMaintainer{changepoints}
 latent_dirichlet_allocation <- function(corpus, latent_vars, niters = 1500L, alpha = 1, beta = 1) {
     .Call('changepoints_latent_dirichlet_allocation', PACKAGE = 'changepoints', corpus, latent_vars, niters, alpha, beta)
 }
 
 #' @name latent_dirichlet_allocation_ll
 #'
-#' @title Generates the log-likelihood for a corresponding set of
-#'        latent variables
+#' @title Estimates log-likelihood for LDA.
 #'
 #' @description Generates the log-likelihood for a corresponding set of
-#'              latent variables
+#'              latent variables.
 #'
-#' @param corpus matrix corresponding to the DTM
+#' @param corpus Matrix corresponding to the DTM.
 #' @param latent_vars List containing the set of variables to be
-#'         updated as part of the estimation procedure
+#'         updated as part of the estimation procedure.
 #'
-#' @return log-likelihood generated from latent vars
+#' @return Log-likelihood estimate.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
+#' @author \packageMaintainer{changepoints}
 latent_dirichlet_allocation_ll <- function(corpus, latent_vars) {
     .Call('changepoints_latent_dirichlet_allocation_ll', PACKAGE = 'changepoints', corpus, latent_vars)
 }
 
 #' @name prox_gradient_mapping
 #'
-#' @title Performs the proximal-gradient mapping operation to
-#'        estimate a regularized version of the inverse cov
-#'        matrix
+#' @title Proximal-gradient mapping method.
 #'
 #' @description Performs the proximal-gradient mapping operation to
-#'              estimate a regularized version of the inverse cov
-#'              matrix
+#'              estimate a regularized version of the inverse cov.
+#'              matrix.  Follows the procedure described in,
+#'              http://dept.stat.lsa.umich.edu/~yvesa/sto_prox.pdf
 #'
-#' @param data N x P matrix corresponding to the raw data
-#' @param theta_start initial value for theta estimate
-#' @param update_w step size for prox-gradient
-#' @param update_change proportion of update_w to keep when
-#'        the algorithm fails to successfully estimate theta
-#' @param regularizer regularizing constant, lambda
-#' @param max_iter number of mapping iterations
-#' @param tol tolerance at which the algorithm stops running
+#' @param data N x P matrix corresponding to the raw data.
+#' @param theta_start Initial value for theta estimate.
+#' @param update_w Step size for prox-gradient.
+#' @param update_change Proportion of update_w to keep when
+#'        the algorithm fails to successfully estimate theta.
+#' @param regularizer Regularizing constant, lambda.
+#' @param max_iter Number of mapping iterations.
+#' @param tol Tolerance at which the algorithm stops running.
 #'
-#' @return theta estimate
+#' @return Theta (precision matrix) estimate.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
+#' @author \packageMaintainer{changepoints}
 prox_gradient_mapping <- function(data, theta_start, update_w, update_change, regularizer, max_iter, tol) {
     .Call('changepoints_prox_gradient_mapping', PACKAGE = 'changepoints', data, theta_start, update_w, update_change, regularizer, max_iter, tol)
 }
 
 #' @name prox_gradient_ll
 #'
-#' @title estimates the log-likeihood for the corresponding
-#'        theta and data set
+#' @title prox-gradient log-likelihood estimator.
 #'
-#' @description estimates the log-likeihood for the corresponding
-#'              theta and data set
+#' @description Estimates the log-likeihood for the corresponding
+#'              precision matrix and data set.
 #'
-#' @param data N x P matrix corresponding to the raw data
-#' @param theta_i estimate for theta
-#' @param regularizer regularizing constant, lambda
+#' @param data N x P matrix corresponding to the raw data.
+#' @param theta_i Estimate for theta.
+#' @param regularizer Regularizing constant, lambda.
 #'
-#' @return log-likelihood
+#' @return Log-likelihood estimate.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
+#' @author \packageMaintainer{changepoints}
 prox_gradient_ll <- function(data, theta_i, regularizer) {
     .Call('changepoints_prox_gradient_ll', PACKAGE = 'changepoints', data, theta_i, regularizer)
 }
@@ -95,28 +92,28 @@ prox_gradient_ll <- function(data, theta_i, regularizer) {
 #' @description This is a method for estimating a single-changepoint
 #'              which takes advantage of the special structure
 #'              of the Gaussian graphical model.  It cannot take
-#'              arbitrary black-box models like simulated_annealing
-#'              or brute_force.  However, it can still be run within
-#'              binary segmentation.
+#'              arbitrary black-box models like \code{simulated_annealing}
+#'              or \code{brute_force}.  However, it can still be run within
+#'              \code{binary segmentation}.
 #'
-#' @param data N x P matrix corresponding to the raw data
-#' @param theta_init initial value for theta estimate
-#' @param buff distance to maintain from edge of sample
-#' @param regularizer regularizing constant, lambda
-#' @param tau initial estimate for change-point
-#' @param max_iter maximum number of rank-one updates to be
-#'        run
-#' @param update_w step size for prox-gradient
-#' @param update_change proportion of update_w to keep when
-#'        the algorithm fails to successfully estimate theta
-#' @param mapping_iter number of mapping iterations
-#' @param tol tolerance at which the algorithm stops running
+#' @param data N x P Matrix corresponding to the raw data.
+#' @param theta_init Initial value for theta estimate.
+#' @param buff Distance to maintain from edge of sample.
+#' @param regularizer Regularizing constant, lambda.
+#' @param tau initial Estimate for change-point.
+#' @param max_iter Maximum number of rank-one updates to be
+#'        run.
+#' @param update_w Step size for prox-gradient.
+#' @param update_change Proportion of update_w to keep when
+#'        the algorithm fails to successfully estimate theta.
+#' @param mapping_iter Number of mapping iterations.
+#' @param tol Tolerance at which the algorithm stops running.
 #'
 #' @return List containing the estimated change-point and
-#'         theta values
+#'         theta values.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
-rank_one <- function(data, theta_int, buff = 10L, regularizer = 1., tau = -1L, max_iter = 25L, update_w = 1., update_change = 0.9, mapping_iter = 1L, tol = 0.00001) {
-    .Call('changepoints_rank_one', PACKAGE = 'changepoints', data, theta_int, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol)
+#' @author \packageMaintainer{changepoints}
+rank_one <- function(data, theta_init, buff = 10L, regularizer = 1., tau = -1L, max_iter = 25L, update_w = 1., update_change = 0.9, mapping_iter = 1L, tol = 0.00001) {
+    .Call('changepoints_rank_one', PACKAGE = 'changepoints', data, theta_init, buff, regularizer, tau, max_iter, update_w, update_change, mapping_iter, tol)
 }
 

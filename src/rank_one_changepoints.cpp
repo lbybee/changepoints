@@ -157,29 +157,29 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
 //' @description This is a method for estimating a single-changepoint
 //'              which takes advantage of the special structure
 //'              of the Gaussian graphical model.  It cannot take
-//'              arbitrary black-box models like simulated_annealing
-//'              or brute_force.  However, it can still be run within
-//'              binary segmentation.
+//'              arbitrary black-box models like \code{simulated_annealing}
+//'              or \code{brute_force}.  However, it can still be run within
+//'              \code{binary segmentation}.
 //'
-//' @param data N x P matrix corresponding to the raw data
-//' @param theta_init initial value for theta estimate
-//' @param buff distance to maintain from edge of sample
-//' @param regularizer regularizing constant, lambda
-//' @param tau initial estimate for change-point
-//' @param max_iter maximum number of rank-one updates to be
-//'        run
-//' @param update_w step size for prox-gradient
-//' @param update_change proportion of update_w to keep when
-//'        the algorithm fails to successfully estimate theta
-//' @param mapping_iter number of mapping iterations
-//' @param tol tolerance at which the algorithm stops running
+//' @param data N x P Matrix corresponding to the raw data.
+//' @param theta_init Initial value for theta estimate.
+//' @param buff Distance to maintain from edge of sample.
+//' @param regularizer Regularizing constant, lambda.
+//' @param tau initial Estimate for change-point.
+//' @param max_iter Maximum number of rank-one updates to be
+//'        run.
+//' @param update_w Step size for prox-gradient.
+//' @param update_change Proportion of update_w to keep when
+//'        the algorithm fails to successfully estimate theta.
+//' @param mapping_iter Number of mapping iterations.
+//' @param tol Tolerance at which the algorithm stops running.
 //'
 //' @return List containing the estimated change-point and
-//'         theta values
+//'         theta values.
 //'
-//' @author Leland Bybee \email{leland.bybee@@gmail.com}
+//' @author \packageMaintainer{changepoints}
 // [[Rcpp::export]]
-List rank_one(arma::mat data, arma::mat theta_int, int buff=10,
+List rank_one(arma::mat data, arma::mat theta_init, int buff=10,
               float regularizer=1., int tau=-1, int max_iter=25,
               float update_w=1., float update_change=0.9,
               int mapping_iter=1, float tol=0.00001){
@@ -191,7 +191,7 @@ List rank_one(arma::mat data, arma::mat theta_int, int buff=10,
      *  data : mat
      *      N x P matrix containing the data for estimateion, note data
      *      should be mean centered
-     *  theta_int : mat
+     *  theta_init : mat
      *      Initial value of theta used to align rank_one with the
      *      other methods
      *  buff : int
@@ -230,8 +230,8 @@ List rank_one(arma::mat data, arma::mat theta_int, int buff=10,
 
 //    mat theta0 = S_inv;
 //    mat theta1 = S_inv;
-    mat theta0 = theta_int;
-    mat theta1 = theta_int;
+    mat theta0 = theta_init;
+    mat theta1 = theta_init;
 
     mat S0;
     mat S1;
@@ -269,7 +269,6 @@ List rank_one(arma::mat data, arma::mat theta_int, int buff=10,
         ll1 = ll_res("ll1");
         ll_mod = ll_res("ll_mod");
         iterations += 1;
-        printf("%d\n", iterations);
     }
     List bbmod_vals = List(2);
     bbmod_vals(0) = theta0;

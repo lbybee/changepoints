@@ -5,45 +5,45 @@
 \title{method for estimating single-changepoint using special
        structure of the GGM framework}
 \usage{
-rank_one(data, theta_int, buff = 10L, regularizer = 1, tau = -1L,
+rank_one(data, theta_init, buff = 10L, regularizer = 1, tau = -1L,
   max_iter = 25L, update_w = 1, update_change = 0.9, mapping_iter = 1L,
   tol = 1e-05)
 }
 \arguments{
-\item{data}{N x P matrix corresponding to the raw data}
+\item{data}{N x P Matrix corresponding to the raw data.}
 
-\item{buff}{distance to maintain from edge of sample}
+\item{theta_init}{Initial value for theta estimate.}
 
-\item{regularizer}{regularizing constant, lambda}
+\item{buff}{Distance to maintain from edge of sample.}
 
-\item{tau}{initial estimate for change-point}
+\item{regularizer}{Regularizing constant, lambda.}
 
-\item{max_iter}{maximum number of rank-one updates to be
-run}
+\item{tau}{initial Estimate for change-point.}
 
-\item{update_w}{step size for prox-gradient}
+\item{max_iter}{Maximum number of rank-one updates to be
+run.}
 
-\item{update_change}{proportion of update_w to keep when
-the algorithm fails to successfully estimate theta}
+\item{update_w}{Step size for prox-gradient.}
 
-\item{mapping_iter}{number of mapping iterations}
+\item{update_change}{Proportion of update_w to keep when
+the algorithm fails to successfully estimate theta.}
 
-\item{tol}{tolerance at which the algorithm stops running}
+\item{mapping_iter}{Number of mapping iterations.}
 
-\item{theta_init}{initial value for theta estimate}
+\item{tol}{Tolerance at which the algorithm stops running.}
 }
 \value{
 List containing the estimated change-point and
-        theta values
+        theta values.
 }
 \description{
 This is a method for estimating a single-changepoint
              which takes advantage of the special structure
              of the Gaussian graphical model.  It cannot take
-             arbitrary black-box models like simulated_annealing
-             or brute_force.  However, it can still be run within
-             binary segmentation.
+             arbitrary black-box models like \code{simulated_annealing}
+             or \code{brute_force}.  However, it can still be run within
+             \code{binary segmentation}.
 }
 \author{
-Leland Bybee \email{leland.bybee@gmail.com}
+\packageMaintainer{changepoints}
 }

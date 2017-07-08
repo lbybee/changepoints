@@ -11,26 +11,25 @@ using namespace arma;
 // proximal gradient black box model
 //' @name prox_gradient_mapping
 //'
-//' @title Performs the proximal-gradient mapping operation to
-//'        estimate a regularized version of the inverse cov
-//'        matrix
+//' @title Proximal-gradient mapping method.
 //'
 //' @description Performs the proximal-gradient mapping operation to
-//'              estimate a regularized version of the inverse cov
-//'              matrix
+//'              estimate a regularized version of the inverse cov.
+//'              matrix.  Follows the procedure described in,
+//'              http://dept.stat.lsa.umich.edu/~yvesa/sto_prox.pdf
 //'
-//' @param data N x P matrix corresponding to the raw data
-//' @param theta_start initial value for theta estimate
-//' @param update_w step size for prox-gradient
-//' @param update_change proportion of update_w to keep when
-//'        the algorithm fails to successfully estimate theta
-//' @param regularizer regularizing constant, lambda
-//' @param max_iter number of mapping iterations
-//' @param tol tolerance at which the algorithm stops running
+//' @param data N x P matrix corresponding to the raw data.
+//' @param theta_start Initial value for theta estimate.
+//' @param update_w Step size for prox-gradient.
+//' @param update_change Proportion of update_w to keep when
+//'        the algorithm fails to successfully estimate theta.
+//' @param regularizer Regularizing constant, lambda.
+//' @param max_iter Number of mapping iterations.
+//' @param tol Tolerance at which the algorithm stops running.
 //'
-//' @return theta estimate
+//' @return Theta (precision matrix) estimate.
 //'
-//' @author Leland Bybee \email{leland.bybee@@gmail.com}
+//' @author \packageMaintainer{changepoints}
 // [[Rcpp::export]]
 arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
                                 double update_w, double update_change,
@@ -39,33 +38,6 @@ arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
      * the proximal gradient procedure described in
      *
      * http://dept.stat.lsa.umich.edu/~yvesa/sto_prox.pdf
-     *
-     * Parameters
-     * ----------
-     *
-     *  data : mat
-     *      The data for the current tau values, should
-     *      be N x P.
-     *  theta_start : mat
-     *      The starting value for theta, should be P x P.
-     *  update_w : double
-     *      The weight for the update to theta, gamma in the source paper.
-     *  update_change : double
-     *      Change to update_w when estimation procedure fails.  New
-     *      update_w *= update_change.
-     *      The amount by which update_w shrinks with each failed run
-     *  regularizer : double
-     *      Regularizing constant, lamb in source paper.
-     *  max_iter : int
-     *      Limits the maximum number iterations.
-     *  tol : double
-     *      The tolerance at which updates are stopped.
-     *
-     * Returns
-     * -------
-     *
-     *  theta_p : mat
-     *      current estimate for theta.
      */
 
     int N = data.n_rows;
@@ -144,39 +116,23 @@ arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
 // proximal gradient black box model log likelihood
 //' @name prox_gradient_ll
 //'
-//' @title estimates the log-likeihood for the corresponding
-//'        theta and data set
+//' @title prox-gradient log-likelihood estimator.
 //'
-//' @description estimates the log-likeihood for the corresponding
-//'              theta and data set
+//' @description Estimates the log-likeihood for the corresponding
+//'              precision matrix and data set.
 //'
-//' @param data N x P matrix corresponding to the raw data
-//' @param theta_i estimate for theta
-//' @param regularizer regularizing constant, lambda
+//' @param data N x P matrix corresponding to the raw data.
+//' @param theta_i Estimate for theta.
+//' @param regularizer Regularizing constant, lambda.
 //'
-//' @return log-likelihood
+//' @return Log-likelihood estimate.
 //'
-//' @author Leland Bybee \email{leland.bybee@@gmail.com}
+//' @author \packageMaintainer{changepoints}
 // [[Rcpp::export]]
 double prox_gradient_ll(arma::mat data, arma::mat theta_i,
                         double regularizer) {
     /* Generates the log-likelihood for the specified theta and
      * tau values
-     *
-     * Parameters
-     * ----------
-     *
-     *  data : mat
-     *      N x P matrix containing the data used for estimation
-     *  theta_i : mat
-     *      P x P inverse cov estimate for first partition
-     *  regularizer : double
-     *      regularizing constant
-     *
-     * Returns
-     * -------
-     *
-     *  double corresponding to log-likelihood
      *
      * Notes
      * -----

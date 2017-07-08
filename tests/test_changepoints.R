@@ -1,4 +1,4 @@
-library(changepoints)
+library(changepoints_hd)
 
 set.seed(334)
 
@@ -47,38 +47,38 @@ res_bs = binary_segmentation(mcp_data, init, simulated_annealing,
                              bbmod_ll_params=prox_gradient_ll_params)
 
 # comparable tests to the above for LDA
-t_data <- sample(0:100, 1000, replace=TRUE)
-t_data <- matrix(t_data, nrow=100, ncol=10)
+#t_data <- sample(0:100, 1000, replace=TRUE)
+#t_data <- matrix(t_data, nrow=100, ncol=10)
 
-corpus = t_data
-latent_vars=list()
-z=matrix(sample(0:1, 1000, replace=TRUE), nrow=100, ncol=10)
-latent_vars$theta=matrix(0, nrow=100, ncol=2)
-latent_vars$phi=matrix(0, nrow=2, ncol=10)
-nw=matrix(0, nrow=10, ncol=2)
-nd=matrix(0, nrow=100, ncol=2)
-nwsum=numeric(2)
-ndsum=numeric(100)
-for(d in 1:100){
-    for(v in 1:10){
-        topic = z[d,v]
-        vcount = corpus[d,v]
-        nw[v,topic] = nw[v,topic] + vcount
-        nd[d,topic] = nd[d,topic] + vcount
-        nwsum[topic] = nwsum[topic] + vcount
-        ndsum[d] = ndsum[d] + vcount
-    }
-}
-latent_vars$z = z
-latent_vars$nw = nw
-latent_vars$nd = nd
-latent_vars$nwsum = nwsum
-latent_vars$ndsum = ndsum
+#corpus = t_data
+#latent_vars=list()
+#z=matrix(sample(0:1, 1000, replace=TRUE), nrow=100, ncol=10)
+#latent_vars$theta=matrix(0, nrow=100, ncol=2)
+#latent_vars$phi=matrix(0, nrow=2, ncol=10)
+#nw=matrix(0, nrow=10, ncol=2)
+#nd=matrix(0, nrow=100, ncol=2)
+#nwsum=numeric(2)
+#ndsum=numeric(100)
+#for(d in 1:100){
+#    for(v in 1:10){
+#        topic = z[d,v]
+#        vcount = corpus[d,v]
+#        nw[v,topic] = nw[v,topic] + vcount
+#        nd[d,topic] = nd[d,topic] + vcount
+#        nwsum[topic] = nwsum[topic] + vcount
+#        ndsum[d] = ndsum[d] + vcount
+#    }
+#}
+#latent_vars$z = z
+#latent_vars$nw = nw
+#latent_vars$nd = nd
+#latent_vars$nwsum = nwsum
+#latent_vars$ndsum = ndsum
 
-latent_dirichlet_allocation_params=list()
-latent_dirichlet_allocation_params$niter = 50
-latent_dirichlet_allocation_params$alpha = 1
-latent_dirichlet_allocation_params$beta = 1
+#latent_dirichlet_allocation_params=list()
+#latent_dirichlet_allocation_params$niter = 50
+#latent_dirichlet_allocation_params$alpha = 1
+#latent_dirichlet_allocation_params$beta = 1
 
 #res_sa = simulated_annealing(corpus, latent_vars, latent_dirichlet_allocation,
 #                             latent_dirichlet_allocation_ll, buff=10,

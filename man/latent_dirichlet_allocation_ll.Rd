@@ -2,24 +2,23 @@
 % Please edit documentation in R/RcppExports.R
 \name{latent_dirichlet_allocation_ll}
 \alias{latent_dirichlet_allocation_ll}
-\title{Generates the log-likelihood for a corresponding set of
-       latent variables}
+\title{Estimates log-likelihood for LDA.}
 \usage{
 latent_dirichlet_allocation_ll(corpus, latent_vars)
 }
 \arguments{
-\item{corpus}{matrix corresponding to the DTM}
+\item{corpus}{Matrix corresponding to the DTM.}
 
 \item{latent_vars}{List containing the set of variables to be
-updated as part of the estimation procedure}
+updated as part of the estimation procedure.}
 }
 \value{
-log-likelihood generated from latent vars
+Log-likelihood estimate.
 }
 \description{
 Generates the log-likelihood for a corresponding set of
-             latent variables
+             latent variables.
 }
 \author{
-Leland Bybee \email{leland.bybee@gmail.com}
+\packageMaintainer{changepoints}
 }

@@ -2,33 +2,47 @@
 % Please edit documentation in R/changepoints.R
 \name{brute_force}
 \alias{brute_force}
-\title{Estimates a single change-point by searching all change-points}
+\title{Single change-point brute force method.}
 \usage{
 brute_force(data, bbmod_init_vals, bbmod_method, bbmod_ll, buff = 100,
   bbmod_method_params = list(), bbmod_ll_params = list())
 }
 \arguments{
-\item{data}{matrix of actual data.}
+\item{data}{Matrix of actual data.  Should be N x P where N is the number
+of observations and p is the number of variables.  Note that
+given the way this is passed to \code{bbmod_method} and \code{bbmod_ll}
+this could possibly handle more complex data structures.
+The key is that we assume that there are N rows.
+This is key because me must subset data before passing
+to \code{bbmod_method} and \code{bbmod_ll}.}
 
-\item{bbmod_init_vals}{initial estimates for arbitrary bbmod values}
+\item{bbmod_init_vals}{Initial estimates for black box model values.
+In the GGM case these correspond to a P x P precision
+matrix.  However, as with \code{data} it is possible to
+handle more complex data structures.  For instance,
+in the topic modeling case this is a list containing
+the current values for the many latent variables
+used in latent Dirichlet allocation.}
 
-\item{bbmod_method}{function corresponding to black box model itself}
+\item{bbmod_method}{Function corresponding to black box model itself.
+Should return an updated version of \code{bbmod_vals}.}
 
-\item{bbmod_ll}{function returning ll or comparable cost function for
-black box model}
+\item{bbmod_ll}{Function for ll or comparable cost function for
+black box model.  Should return scalar estimate of ll/cost.}
 
-\item{buff}{distance from edge of sample to be maintained}
+\item{buff}{Distance from edge of sample to be maintained during search.}
 
-\item{bbmod_method_params}{list of additional parameters for bbmod_method}
+\item{bbmod_method_params}{List of additional parameters for \code{bbmod_method}.}
 
-\item{bbmod_ll_params}{list of additional parameters for bbmod_ll}
+\item{bbmod_ll_params}{List of additional parameters for \code{bbmod_ll}.}
 }
 \value{
-List containing estimated change-point and thetas
+List containing estimated change-point and black box model estimates.
 }
 \description{
-Estimates a single change-point by search all change-points
+Estimates a single change-point by testing all possible
+             change-points.
 }
 \author{
-Leland Bybee \email{leland.bybee@gmail.com}
+\packageMaintainer{changepoints}
 }

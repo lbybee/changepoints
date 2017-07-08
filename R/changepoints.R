@@ -1,25 +1,37 @@
 #' @name simulated_annealing
 #'
-#' @title Estimates a single change-point using the simulated annealing
-#'        method
+#' @title Single change-point simulated annealing method
 #'
 #' @description Estimates a single change-point using the simulated annealing
-#'              method
+#'              method.
 #'
-#' @param data matrix of actual data.
-#' @param bbmod_init_vals initial estimates for arbitrary bbmod values
-#' @param bbmod_method function corresponding to black box model itself
-#' @param bbmod_ll function returning ll or comparable cost function for
-#'                 black box model
-#' @param niter number of simulated annealing iterations
-#' @param min_beta lowest temperature
-#' @param buff distance from edge of sample to be maintained
-#' @param bbmod_method_params list of additional parameters for bbmod_method
-#' @param bbmod_ll_params list of additional parameters for bbmod_ll
+#' @param data Matrix of actual data.  Should be N x P where N is the number
+#'             of observations and p is the number of variables.  Note that
+#'             given the way this is passed to \code{bbmod_method} and \code{bbmod_ll}
+#'             this could possibly handle more complex data structures.
+#'             The key is that we assume that there are N rows.
+#'             This is key because me must subset data before passing
+#'             to \code{bbmod_method} and \code{bbmod_ll}.
+#' @param bbmod_init_vals Initial estimates for black box model values.
+#'                        In the GGM case these correspond to a P x P precision
+#'                        matrix.  However, as with \code{data} it is possible to
+#'                        handle more complex data structures.  For instance,
+#'                        in the topic modeling case this is a list containing
+#'                        the current values for the many latent variables
+#'                        used in latent Dirichlet allocation.
+#' @param bbmod_method Function corresponding to black box model itself.
+#'                     Should return an updated version of \code{bbmod_vals}.
+#' @param bbmod_ll Function for ll or comparable cost function for
+#'                 black box model.  Should return scalar estimate of ll/cost.
+#' @param niter Number of simulated annealing iterations.
+#' @param min_beta Lowest temperature.
+#' @param buff Distance from edge of sample to be maintained during search.
+#' @param bbmod_method_params List of additional parameters for \code{bbmod_method}.
+#' @param bbmod_ll_params List of additional parameters for \code{bbmod_ll}.
 #'
-#' @return List containing estimated change-point and thetas
+#' @return List containing estimated change-point and black box model estimates.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
+#' @author \packageMaintainer{changepoints}
 simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
                                 niter=500, min_beta=1e-4, buff=100,
                                 bbmod_method_params=list(),
@@ -27,46 +39,6 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
     "simulated annealing for esitmating change-points, returns a list
     containing the location of the estimated change-point as well as the
     estimated black box model values
-
-    Paramters
-    ---------
-
-    data : matrix
-        N x P matrix of actual data.  Note that given the way this is passed
-        bbmod_method and bbmod_ll this could possibly be overloaded to handle
-        more complex data structures.  The key is that we assume that there
-        are N rows.  This is key because we must subset data for bbmod_method
-        and bbmod_ll.
-    bbmod_init_vals : arbitrary
-        matrix of initial values for bbmod.  Again, this can also be
-        overloaded.  Note that in the GGM case this is a P x P matrix for
-        the theta values, but in the LDA case this can be both the
-        topic-document proportions and the term-topic proportions (so a
-        list of both).
-    bbmod_method : function
-        function used to estimate bbmod_vals
-        Note that this should be set up to work as
-        bbmod_method(data, init_vals, additional_parameters...)
-    bbmod_ll : function
-        function used to estimate the log likelihood for the bbmod
-        Note that this should be set up to work as
-        bbmod_ll(data, init_vals, additional_parameters...)
-    niter : scalar
-        number of simulated annealing iterations
-    min_beta : scalar
-        min beta to stop method when reached
-    buff : scalar
-        distance from edge of sample to be maintained for search
-    bbmod_method_params : list
-        any additional parameters that are to be passed to bbmod_method
-    bbmod_ll_params : list
-        any additional parameters that are to be passed to bbmod_ll
-
-    Returns
-    -------
-    list
-        tau : change-point
-        bbmod_vals : list of bbmod_vals for each subset
     "
 
     # TODO add support for different init vals
@@ -78,12 +50,6 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
     taup = tau
     iterations = 0
     beta = 1
-
-    print(niter)
-    print(min_beta)
-    print(buff)
-    print(bbmod_method_params)
-    print(bbmod_ll_params)
 
     while((beta > min_beta) & (iterations < niter)){
 
@@ -114,7 +80,7 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
 
         u = runif(1)
 
-        print(paste(prob, u, ll, llp, tau, taup, beta))
+        print(paste("LL:", ll, "Prop LL:", llp, "CP:", tau, "Prop CP:", taup))
         if (prob > u){
             tau = taup
         }
@@ -132,61 +98,42 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
 
 #' @name brute_force
 #'
-#' @title Estimates a single change-point by searching all change-points
+#' @title Single change-point brute force method.
 #'
-#' @description Estimates a single change-point by search all change-points
+#' @description Estimates a single change-point by testing all possible
+#'              change-points.
 #'
-#' @param data matrix of actual data.
-#' @param bbmod_init_vals initial estimates for arbitrary bbmod values
-#' @param bbmod_method function corresponding to black box model itself
-#' @param bbmod_ll function returning ll or comparable cost function for
-#'                 black box model
-#' @param buff distance from edge of sample to be maintained
-#' @param bbmod_method_params list of additional parameters for bbmod_method
-#' @param bbmod_ll_params list of additional parameters for bbmod_ll
+#' @param data Matrix of actual data.  Should be N x P where N is the number
+#'             of observations and p is the number of variables.  Note that
+#'             given the way this is passed to \code{bbmod_method} and \code{bbmod_ll}
+#'             this could possibly handle more complex data structures.
+#'             The key is that we assume that there are N rows.
+#'             This is key because me must subset data before passing
+#'             to \code{bbmod_method} and \code{bbmod_ll}.
+#' @param bbmod_init_vals Initial estimates for black box model values.
+#'                        In the GGM case these correspond to a P x P precision
+#'                        matrix.  However, as with \code{data} it is possible to
+#'                        handle more complex data structures.  For instance,
+#'                        in the topic modeling case this is a list containing
+#'                        the current values for the many latent variables
+#'                        used in latent Dirichlet allocation.
+#' @param bbmod_method Function corresponding to black box model itself.
+#'                     Should return an updated version of \code{bbmod_vals}.
+#' @param bbmod_ll Function for ll or comparable cost function for
+#'                 black box model.  Should return scalar estimate of ll/cost.
+#' @param buff Distance from edge of sample to be maintained during search.
+#' @param bbmod_method_params List of additional parameters for \code{bbmod_method}.
+#' @param bbmod_ll_params List of additional parameters for \code{bbmod_ll}.
 #'
-#' @return List containing estimated change-point and thetas
+#' @return List containing estimated change-point and black box model estimates.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
+#' @author \packageMaintainer{changepoints}
 
 brute_force <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
                         buff=100, bbmod_method_params=list(),
                         bbmod_ll_params=list()){
     "brute force method for estimating change-points, returns the index of
     the estimated change-point
-
-    data : matrix
-        N x P matrix of actual data.  Note that given the way this is passed
-        bbmod_method and bbmod_ll this could possibly be overloaded to handle
-        more complex data structures.  The key is that we assume that there
-        are N rows.  This is key because we must subset data for bbmod_method
-        and bbmod_ll.
-    bbmod_init_vals : arbitrary
-        matrix of initial values for bbmod.  Again, this can also be
-        overloaded.  Note that in the GGM case this is a P x P matrix for
-        the theta values, but in the LDA case this can be both the
-        topic-document proportions and the term-topic proportions (so a
-        list of both).
-    bbmod_method : function
-        function used to estimate bbmod_vals
-        Note that this should be set up to work as
-        bbmod_method(data, init_vals, additional_parameters...)
-    bbmod_ll : function
-        function used to estimate the log likelihood for the bbmod
-        Note that this should be set up to work as
-        bbmod_ll(data, init_vals, additional_parameters...)
-    buff : scalar
-        distance from edge of sample to be maintained for search
-    bbmod_method_params : list
-        any additional parameters that are to be passed to bbmod_method
-    bbmod_ll_params : list
-        any additional parameters that are to be passed to bbmod_ll
-
-    Returns
-    -------
-    list
-        tau : change-point
-        bbmod_vals : list of bbmod_vals for each subset
     "
 
     bbmod_vals = list(bbmod_init_vals, bbmod_init_vals)
@@ -205,8 +152,9 @@ brute_force <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
                                   bbmod_ll_params))
         ll1 = do.call(bbmod_ll, c(list(data[(i+1):N,], bbmod_vals[[1]]),
                                   bbmod_ll_params))
-        ll_l = c(ll_l, ll0 + ll1)
-        print(i)
+        ll = ll0 + ll1
+        ll_l = c(ll_l, ll)
+        print(paste("LL:", ll, "CP:", i))
     }
 
     tau = which.min(ll_l)
@@ -226,77 +174,46 @@ brute_force <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
 
 #' @name binary_segmentation
 #'
-#' @title Estimates multiple change-points by binary segmentation
+#' @title Multiple change-point method.
 #'
-#' @description Estimates multiple change-points by binary segmentations
-#'              using provided single-change-point method to search each
-#'              partition
+#' @description Estimates multiple change-points using the binary-segmentation
+#'              method.  This does a breadth first search and uses the specified
+#'              single change-point method for each sub-search.
 #'
-#' @param data matrix of actual data.
-#' @param bbmod_init_vals initial estimates for arbitrary bbmod values
-#' @param cp_method single change-point method used
-#' @param bbmod_method function corresponding to black box model itself
-#' @param bbmod_ll function returning ll or comparable cost function for
-#'                 black box model
-#' @param thresh stopping threshold for cost comparison
-#' @param buff distance from edge of sample to be maintained
-#' @param cp_method_params list of additional parameters for cp_method
-#' @param bbmod_method_params list of additional parameters for bbmod_method
-#' @param bbmod_ll_params list of additional parameters for bbmod_ll
+#' @param data Matrix of actual data.  Should be N x P where N is the number
+#'             of observations and p is the number of variables.  Note that
+#'             given the way this is passed to \code{bbmod_method} and \code{bbmod_ll}
+#'             this could possibly handle more complex data structures.
+#'             The key is that we assume that there are N rows.
+#'             This is key because me must subset data before passing
+#'             to \code{bbmod_method} and \code{bbmod_ll}.
+#' @param bbmod_init_vals Initial estimates for black box model values.
+#'                        In the GGM case these correspond to a P x P precision
+#'                        matrix.  However, as with \code{data} it is possible to
+#'                        handle more complex data structures.  For instance,
+#'                        in the topic modeling case this is a list containing
+#'                        the current values for the many latent variables
+#'                        used in latent Dirichlet allocation.
+#' @param cp_method Function for finding single change-point.
+#' @param bbmod_method Function corresponding to black box model itself.
+#'                     Should return an updated version of \code{bbmod_vals}.
+#' @param bbmod_ll Function for ll or comparable cost function for
+#'                 black box model.  Should return scalar estimate of ll/cost.
+#' @param thresh Stopping threshold for cost comparison.
+#' @param buff Distance from edge of sample to be maintained during search.
+#' @param cp_method_params List of additional parameters for \code{cp_method}.
+#' @param bbmod_method_params List of additional parameters for \code{bbmod_method}.
+#' @param bbmod_ll_params List of additional parameters for \code{bbmod_ll}.
 #'
-#' @return List containing estimated change-points and thetas
+#' @return List containing estimated change-points and model estimates.
 #'
-#' @author Leland Bybee \email{leland.bybee@@gmail.com}
+#' @author \packageMaintainer{changepoints}
 binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                                 bbmod_method, bbmod_ll, thresh=0, buff=100,
                                 cp_method_params=list(),
                                 bbmod_method_params=list(),
                                 bbmod_ll_params=list()){
     "handles the binary segmentation
-
-    Parameters
-    ----------
-
-    data : matrix
-        N x P matrix of actual data.  Note that given the way this is passed
-        bbmod_method and bbmod_ll this could possibly be overloaded to handle
-        more complex data structures.  The key is that we assume that there
-        are N rows.  This is key because we must subset data for bbmod_method
-        and bbmod_ll.
-    bbmod_init_vals : arbitrary
-        matrix of initial values for bbmod.  Again, this can also be
-        overloaded.  Note that in the GGM case this is a P x P matrix for
-        the theta values, but in the LDA case this can be both the
-        topic-document proportions and the term-topic proportions (so a
-        list of both).
-    cp_method : function
-        which method should be used to estimate the individual change-points
-        currently supports
-            1. simulated annealing
-            2. brute force
-    bbmod_method : function
-        function used to estimate bbmod_vals
-        Note that this should be set up to work as
-        bbmod_method(data, init_vals, additional_parameters...)
-    bbmod_ll : function
-        function used to estimate the log likelihood for the bbmod
-        Note that this should be set up to work as
-        bbmod_ll(data, init_vals, additional_parameters...)
-    thresh : scalar
-        threshold for likelihood comparison below which we no-longer accept
-        change-points
-    buff : scalar
-        distance from edge of sample to be maintained for search
-    bbmod_method_params : list
-        any additional parameters that are to be passed to bbmod_method
-    bbmod_ll_params : list
-        any additional parameters that are to be passed to bbmod_ll
-
-    Returns
-    -------
-    list
-        tau_l : change-point vector
-        bbmod_vals : list of bbmod_vals for each subset
     "
 
     bbmod_vals_base = list(bbmod_init_vals)
@@ -344,6 +261,12 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                     ll = ll0 + ll1
 
                     cond1 = (ll - ll_l[i]) > thresh * P
+                    # TODO, this doesn't directly follow the approach in the
+                    # paper, the issue is that we don't want to make
+                    # assumptions about the black box model structure. So we
+                    # can't test the bbmod_vals directy (inv-cov estimates
+                    # in the paper) testing that the log-likelihood hasn't
+                    # exploded is a reasonable first approximation.
                     cond2 = (ll > -1e15) & (ll < 1e15)
                     cond3 = (tau < Nt - buff) & (tau > buff)
                     print(cond1)
@@ -365,7 +288,6 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                 }
 
                 else{
-                    print("no")
                     t_ll_l = c(t_ll_l, ll_l[i])
                     t_cp_l = c(t_cp_l, cp_l[i + 1])
                     t_state_l = c(t_state_l, 0)
@@ -385,6 +307,7 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
         cp_l = t_cp_l
         state_l = t_state_l
         bbmod_vals_base = t_bbmod_vals_base
+        print(paste("Current Changepoints:", cp_l))
     }
     res = list()
     res$tau_l = cp_l

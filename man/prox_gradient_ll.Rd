@@ -2,25 +2,24 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox_gradient_ll}
 \alias{prox_gradient_ll}
-\title{estimates the log-likeihood for the corresponding
-       theta and data set}
+\title{prox-gradient log-likelihood estimator.}
 \usage{
 prox_gradient_ll(data, theta_i, regularizer)
 }
 \arguments{
-\item{data}{N x P matrix corresponding to the raw data}
+\item{data}{N x P matrix corresponding to the raw data.}
 
-\item{theta_i}{estimate for theta}
+\item{theta_i}{Estimate for theta.}
 
-\item{regularizer}{regularizing constant, lambda}
+\item{regularizer}{Regularizing constant, lambda.}
 }
 \value{
-log-likelihood
+Log-likelihood estimate.
 }
 \description{
-estimates the log-likeihood for the corresponding
-             theta and data set
+Estimates the log-likeihood for the corresponding
+             precision matrix and data set.
 }
 \author{
-Leland Bybee \email{leland.bybee@gmail.com}
+\packageMaintainer{changepoints}
 }

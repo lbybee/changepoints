@@ -2,31 +2,31 @@
 % Please edit documentation in R/RcppExports.R
 \name{latent_dirichlet_allocation}
 \alias{latent_dirichlet_allocation}
-\title{Estimates LDA topic model}
+\title{Estimates LDA topic model.}
 \usage{
 latent_dirichlet_allocation(corpus, latent_vars, niters = 1500L, alpha = 1,
   beta = 1)
 }
 \arguments{
-\item{corpus}{matrix corresponding to the DTM}
+\item{corpus}{Matrix corresponding to the DTM.}
 
 \item{latent_vars}{List containing the set of variables to be
-updated as part of the estimation procedure}
+updated as part of the estimation procedure.}
 
-\item{niters}{number of iterations for LDA to run}
+\item{niters}{Number of iterations for LDA to run.}
 
-\item{alpha}{prior for theta}
+\item{alpha}{Prior for theta.}
 
-\item{beta}{prior for phi}
+\item{beta}{Prior for phi.}
 }
 \value{
-latent_vars updated version of List that was taken
-        as input
+latent_vars Updated version of List that was taken
+        as input.
 }
 \description{
 Estimates a LDA topic model using collapsed Gibbs
-             sampling
+             sampling.
 }
 \author{
-Leland Bybee \email{leland.bybee@gmail.com}
+\packageMaintainer{changepoints}
 }

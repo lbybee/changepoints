@@ -2,37 +2,36 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox_gradient_mapping}
 \alias{prox_gradient_mapping}
-\title{Performs the proximal-gradient mapping operation to
-       estimate a regularized version of the inverse cov
-       matrix}
+\title{Proximal-gradient mapping method.}
 \usage{
 prox_gradient_mapping(data, theta_start, update_w, update_change, regularizer,
   max_iter, tol)
 }
 \arguments{
-\item{data}{N x P matrix corresponding to the raw data}
+\item{data}{N x P matrix corresponding to the raw data.}
 
-\item{theta_start}{initial value for theta estimate}
+\item{theta_start}{Initial value for theta estimate.}
 
-\item{update_w}{step size for prox-gradient}
+\item{update_w}{Step size for prox-gradient.}
 
-\item{update_change}{proportion of update_w to keep when
-the algorithm fails to successfully estimate theta}
+\item{update_change}{Proportion of update_w to keep when
+the algorithm fails to successfully estimate theta.}
 
-\item{regularizer}{regularizing constant, lambda}
+\item{regularizer}{Regularizing constant, lambda.}
 
-\item{max_iter}{number of mapping iterations}
+\item{max_iter}{Number of mapping iterations.}
 
-\item{tol}{tolerance at which the algorithm stops running}
+\item{tol}{Tolerance at which the algorithm stops running.}
 }
 \value{
-theta estimate
+Theta (precision matrix) estimate.
 }
 \description{
 Performs the proximal-gradient mapping operation to
-             estimate a regularized version of the inverse cov
-             matrix
+             estimate a regularized version of the inverse cov.
+             matrix.  Follows the procedure described in,
+             http://dept.stat.lsa.umich.edu/~yvesa/sto_prox.pdf
 }
 \author{
-Leland Bybee \email{leland.bybee@gmail.com}
+\packageMaintainer{changepoints}
 }

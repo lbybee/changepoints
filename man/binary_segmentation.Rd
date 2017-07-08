@@ -2,42 +2,55 @@
 % Please edit documentation in R/changepoints.R
 \name{binary_segmentation}
 \alias{binary_segmentation}
-\title{Estimates multiple change-points by binary segmentation}
+\title{Multiple change-point method.}
 \usage{
 binary_segmentation(data, bbmod_init_vals, cp_method, bbmod_method, bbmod_ll,
   thresh = 0, buff = 100, cp_method_params = list(),
   bbmod_method_params = list(), bbmod_ll_params = list())
 }
 \arguments{
-\item{data}{matrix of actual data.}
+\item{data}{Matrix of actual data.  Should be N x P where N is the number
+of observations and p is the number of variables.  Note that
+given the way this is passed to \code{bbmod_method} and \code{bbmod_ll}
+this could possibly handle more complex data structures.
+The key is that we assume that there are N rows.
+This is key because me must subset data before passing
+to \code{bbmod_method} and \code{bbmod_ll}.}
 
-\item{bbmod_init_vals}{initial estimates for arbitrary bbmod values}
+\item{bbmod_init_vals}{Initial estimates for black box model values.
+In the GGM case these correspond to a P x P precision
+matrix.  However, as with \code{data} it is possible to
+handle more complex data structures.  For instance,
+in the topic modeling case this is a list containing
+the current values for the many latent variables
+used in latent Dirichlet allocation.}
 
-\item{cp_method}{single change-point method used}
+\item{cp_method}{Function for finding single change-point.}
 
-\item{bbmod_method}{function corresponding to black box model itself}
+\item{bbmod_method}{Function corresponding to black box model itself.
+Should return an updated version of \code{bbmod_vals}.}
 
-\item{bbmod_ll}{function returning ll or comparable cost function for
-black box model}
+\item{bbmod_ll}{Function for ll or comparable cost function for
+black box model.  Should return scalar estimate of ll/cost.}
 
-\item{thresh}{stopping threshold for cost comparison}
+\item{thresh}{Stopping threshold for cost comparison.}
 
-\item{buff}{distance from edge of sample to be maintained}
+\item{buff}{Distance from edge of sample to be maintained during search.}
 
-\item{cp_method_params}{list of additional parameters for cp_method}
+\item{cp_method_params}{List of additional parameters for \code{cp_method}.}
 
-\item{bbmod_method_params}{list of additional parameters for bbmod_method}
+\item{bbmod_method_params}{List of additional parameters for \code{bbmod_method}.}
 
-\item{bbmod_ll_params}{list of additional parameters for bbmod_ll}
+\item{bbmod_ll_params}{List of additional parameters for \code{bbmod_ll}.}
 }
 \value{
-List containing estimated change-points and thetas
+List containing estimated change-points and model estimates.
 }
 \description{
-Estimates multiple change-points by binary segmentations
-             using provided single-change-point method to search each
-             partition
+Estimates multiple change-points using the binary-segmentation
+             method.  This does a breadth first search and uses the specified
+             single change-point method for each sub-search.
 }
 \author{
-Leland Bybee \email{leland.bybee@gmail.com}
+\packageMaintainer{changepoints}
 }

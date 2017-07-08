@@ -122,17 +122,11 @@ List z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
     vec p = zeros(K);
 
     int topic = z(d,v);
-//    printf("1\n");
     int vcount = corpus(d,v);
-//    printf("2\n");
     nw(v,topic) -= vcount;
-//    printf("3\n");
     nd(d,topic) -= vcount;
-//    printf("4\n");
     nwsum(topic) -= vcount;
-//    printf("5\n");
     ndsum(d) -= vcount;
-//    printf("6\n");
 
     double Vbeta = V * beta;
     double Kalpha = K * alpha;
@@ -142,40 +136,25 @@ List z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
         p(k) = (nw(v,k) + beta) / (nwsum(k) + Vbeta) *
                 (nd(d,k) + alpha) / (ndsum(d) + Kalpha);
     }
-//    printf("7\n");
     // cumulative multinomial parameters
     for (int k = 1; k < K; k++){
         p(k) += p(k - 1);
     }
-//    printf("8\n");
 
     // scaled sample because of unnormalized p()
-    double u = ((double)rand() / RAND_MAX) * p(K - 1);
+    double u = R::runif(0,1) * p(K - 1);
+//    double u = ((double)rand() / RAND_MAX) * p(K - 1);
 
     for(int topic = 0; topic < K; topic++) {
         if (p(topic) > u) {
             break;
         }
     }
-    int temp;
-//    printf("9\n");
-    temp = nw.n_rows;
-//    printf("%d\n", temp);
-    temp = nw.n_cols;
-//    printf("%d\n", temp);
-//    printf("ref\n");
-//    printf("%d\n", topic);
-//    printf("%d\n", K);
-
 
     nw(v,topic) += vcount;
-//    printf("10\n");
     nd(d,topic) += vcount;
-//    printf("11\n");
     nwsum(topic) += vcount;
-//    printf("12\n");
     ndsum(d) += vcount;
-//    printf("13\n");
 
     List res;
     res("topic") = topic;
@@ -189,22 +168,22 @@ List z_sampler(int d, int v, mat corpus, mat z, mat nd, mat nw, vec ndsum,
 // LDA black box model
 //' @name latent_dirichlet_allocation
 //'
-//' @title Estimates LDA topic model
+//' @title Estimates LDA topic model.
 //'
 //' @description Estimates a LDA topic model using collapsed Gibbs
-//'              sampling
+//'              sampling.
 //'
-//' @param corpus matrix corresponding to the DTM
+//' @param corpus Matrix corresponding to the DTM.
 //' @param latent_vars List containing the set of variables to be
-//'         updated as part of the estimation procedure
-//' @param niters number of iterations for LDA to run
-//' @param alpha prior for theta
-//' @param beta prior for phi
+//'         updated as part of the estimation procedure.
+//' @param niters Number of iterations for LDA to run.
+//' @param alpha Prior for theta.
+//' @param beta Prior for phi.
 //'
-//' @return latent_vars updated version of List that was taken
-//'         as input
+//' @return latent_vars Updated version of List that was taken
+//'         as input.
 //'
-//' @author Leland Bybee \email{leland.bybee@@gmail.com}
+//' @author \packageMaintainer{changepoints}
 // [[Rcpp::export]]
 List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
                                  int niters=1500, double alpha=1,
@@ -251,9 +230,6 @@ List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
     int topic;
     List z_update;
 
-    // TODO remove
-    int temp;
-
     for (int liter = 1; liter <= niters; liter++){
         // for all z_i
         for (int d = 0; d < D; d++) {
@@ -261,28 +237,16 @@ List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
                 z_update = z_sampler(d, v, corpus, z, nd, nw, ndsum, nwsum,
                                      alpha, beta);
                 topic = z_update("topic");
-//                printf("a %d\n", topic);
-                temp = nw.n_rows;
-//                printf("a %d\n", temp);
-                temp = nw.n_cols;
-//                printf("a %d\n", temp);
                 mat nw = z_update("nw");
-                temp = nw.n_rows;
-//                printf("a %d\n", temp);
-                temp = nw.n_cols;
-//                printf("a %d\n", temp);
                 mat nd = z_update("nd");
                 vec nwsum = z_update("nwsum");
                 vec ndsum = z_update("ndsum");
                 z(d,v) = topic;
             }
         }
-        printf("AAAAA\n");
     }
     theta = theta_sampler(theta, nd, ndsum, alpha);
-    printf("1\n");
     phi = phi_sampler(phi, nw, nwsum, beta);
-    printf("2\n");
 
     latent_vars("z") = z;
     latent_vars("theta") = theta;
@@ -298,19 +262,18 @@ List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
 // LDA log-likelihood
 //' @name latent_dirichlet_allocation_ll
 //'
-//' @title Generates the log-likelihood for a corresponding set of
-//'        latent variables
+//' @title Estimates log-likelihood for LDA.
 //'
 //' @description Generates the log-likelihood for a corresponding set of
-//'              latent variables
+//'              latent variables.
 //'
-//' @param corpus matrix corresponding to the DTM
+//' @param corpus Matrix corresponding to the DTM.
 //' @param latent_vars List containing the set of variables to be
-//'         updated as part of the estimation procedure
+//'         updated as part of the estimation procedure.
 //'
-//' @return log-likelihood generated from latent vars
+//' @return Log-likelihood estimate.
 //'
-//' @author Leland Bybee \email{leland.bybee@@gmail.com}
+//' @author \packageMaintainer{changepoints}
 // [[Rcpp::export]]
 double latent_dirichlet_allocation_ll(arma::mat corpus, List latent_vars){
     /* generates the log likelihood for the corresponding LDA estimates
