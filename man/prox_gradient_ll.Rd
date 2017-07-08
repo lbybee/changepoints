@@ -2,14 +2,14 @@
 % Please edit documentation in R/RcppExports.R
 \name{prox_gradient_ll}
 \alias{prox_gradient_ll}
-\title{prox-gradient log-likelihood estimator.}
+\title{Proxmal-gradient log-likelihood estimator.}
 \usage{
 prox_gradient_ll(data, theta_i, regularizer)
 }
 \arguments{
 \item{data}{N x P matrix corresponding to the raw data.}
 
-\item{theta_i}{Estimate for theta.}
+\item{theta_i}{Estimate for precision.}
 
 \item{regularizer}{Regularizing constant, lambda.}
 }

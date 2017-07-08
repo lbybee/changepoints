@@ -51,10 +51,10 @@ latent_dirichlet_allocation_ll <- function(corpus, latent_vars) {
 #'              http://dept.stat.lsa.umich.edu/~yvesa/sto_prox.pdf
 #'
 #' @param data N x P matrix corresponding to the raw data.
-#' @param theta_start Initial value for theta estimate.
-#' @param update_w Step size for prox-gradient.
-#' @param update_change Proportion of update_w to keep when
-#'        the algorithm fails to successfully estimate theta.
+#' @param theta_start Initial value for precision estimate.
+#' @param update_w Step size for prox-gradient mapping.
+#' @param update_change Proportion of \code{update_w} to keep when
+#'        the algorithm fails to successfully estimate precision.
 #' @param regularizer Regularizing constant, lambda.
 #' @param max_iter Number of mapping iterations.
 #' @param tol Tolerance at which the algorithm stops running.
@@ -68,13 +68,13 @@ prox_gradient_mapping <- function(data, theta_start, update_w, update_change, re
 
 #' @name prox_gradient_ll
 #'
-#' @title prox-gradient log-likelihood estimator.
+#' @title Proxmal-gradient log-likelihood estimator.
 #'
 #' @description Estimates the log-likeihood for the corresponding
 #'              precision matrix and data set.
 #'
 #' @param data N x P matrix corresponding to the raw data.
-#' @param theta_i Estimate for theta.
+#' @param theta_i Estimate for precision.
 #' @param regularizer Regularizing constant, lambda.
 #'
 #' @return Log-likelihood estimate.
@@ -86,25 +86,24 @@ prox_gradient_ll <- function(data, theta_i, regularizer) {
 
 #' @name rank_one
 #'
-#' @title method for estimating single-changepoint using special
-#'        structure of the GGM framework
+#' @title Rank one update single change-point estimation.
 #'
 #' @description This is a method for estimating a single-changepoint
 #'              which takes advantage of the special structure
 #'              of the Gaussian graphical model.  It cannot take
 #'              arbitrary black-box models like \code{simulated_annealing}
 #'              or \code{brute_force}.  However, it can still be run within
-#'              \code{binary segmentation}.
+#'              \code{binary_segmentation}.
 #'
 #' @param data N x P Matrix corresponding to the raw data.
 #' @param theta_init Initial value for theta estimate.
 #' @param buff Distance to maintain from edge of sample.
 #' @param regularizer Regularizing constant, lambda.
-#' @param tau initial Estimate for change-point.
+#' @param tau Initial Estimate for change-point.
 #' @param max_iter Maximum number of rank-one updates to be
 #'        run.
 #' @param update_w Step size for prox-gradient.
-#' @param update_change Proportion of update_w to keep when
+#' @param update_change Proportion of \code{update_w} to keep when
 #'        the algorithm fails to successfully estimate theta.
 #' @param mapping_iter Number of mapping iterations.
 #' @param tol Tolerance at which the algorithm stops running.

@@ -151,25 +151,24 @@ List log_likelihood_rank_one(mat data, mat S0, mat S1, mat theta0,
 // Rank one change-point estimation procedure
 //' @name rank_one
 //'
-//' @title method for estimating single-changepoint using special
-//'        structure of the GGM framework
+//' @title Rank one update single change-point estimation.
 //'
 //' @description This is a method for estimating a single-changepoint
 //'              which takes advantage of the special structure
 //'              of the Gaussian graphical model.  It cannot take
 //'              arbitrary black-box models like \code{simulated_annealing}
 //'              or \code{brute_force}.  However, it can still be run within
-//'              \code{binary segmentation}.
+//'              \code{binary_segmentation}.
 //'
 //' @param data N x P Matrix corresponding to the raw data.
 //' @param theta_init Initial value for theta estimate.
 //' @param buff Distance to maintain from edge of sample.
 //' @param regularizer Regularizing constant, lambda.
-//' @param tau initial Estimate for change-point.
+//' @param tau Initial Estimate for change-point.
 //' @param max_iter Maximum number of rank-one updates to be
 //'        run.
 //' @param update_w Step size for prox-gradient.
-//' @param update_change Proportion of update_w to keep when
+//' @param update_change Proportion of \code{update_w} to keep when
 //'        the algorithm fails to successfully estimate theta.
 //' @param mapping_iter Number of mapping iterations.
 //' @param tol Tolerance at which the algorithm stops running.

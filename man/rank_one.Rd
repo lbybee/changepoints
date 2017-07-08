@@ -2,8 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rank_one}
 \alias{rank_one}
-\title{method for estimating single-changepoint using special
-       structure of the GGM framework}
+\title{Rank one update single change-point estimation.}
 \usage{
 rank_one(data, theta_init, buff = 10L, regularizer = 1, tau = -1L,
   max_iter = 25L, update_w = 1, update_change = 0.9, mapping_iter = 1L,
@@ -18,14 +17,14 @@ rank_one(data, theta_init, buff = 10L, regularizer = 1, tau = -1L,
 
 \item{regularizer}{Regularizing constant, lambda.}
 
-\item{tau}{initial Estimate for change-point.}
+\item{tau}{Initial Estimate for change-point.}
 
 \item{max_iter}{Maximum number of rank-one updates to be
 run.}
 
 \item{update_w}{Step size for prox-gradient.}
 
-\item{update_change}{Proportion of update_w to keep when
+\item{update_change}{Proportion of \code{update_w} to keep when
 the algorithm fails to successfully estimate theta.}
 
 \item{mapping_iter}{Number of mapping iterations.}
@@ -42,7 +41,7 @@ This is a method for estimating a single-changepoint
              of the Gaussian graphical model.  It cannot take
              arbitrary black-box models like \code{simulated_annealing}
              or \code{brute_force}.  However, it can still be run within
-             \code{binary segmentation}.
+             \code{binary_segmentation}.
 }
 \author{
 \packageMaintainer{changepointsHD}

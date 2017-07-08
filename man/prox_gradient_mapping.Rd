@@ -10,12 +10,12 @@ prox_gradient_mapping(data, theta_start, update_w, update_change, regularizer,
 \arguments{
 \item{data}{N x P matrix corresponding to the raw data.}
 
-\item{theta_start}{Initial value for theta estimate.}
+\item{theta_start}{Initial value for precision estimate.}
 
-\item{update_w}{Step size for prox-gradient.}
+\item{update_w}{Step size for prox-gradient mapping.}
 
-\item{update_change}{Proportion of update_w to keep when
-the algorithm fails to successfully estimate theta.}
+\item{update_change}{Proportion of \code{update_w} to keep when
+the algorithm fails to successfully estimate precision.}
 
 \item{regularizer}{Regularizing constant, lambda.}
 

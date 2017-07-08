@@ -19,10 +19,10 @@ using namespace arma;
 //'              http://dept.stat.lsa.umich.edu/~yvesa/sto_prox.pdf
 //'
 //' @param data N x P matrix corresponding to the raw data.
-//' @param theta_start Initial value for theta estimate.
-//' @param update_w Step size for prox-gradient.
-//' @param update_change Proportion of update_w to keep when
-//'        the algorithm fails to successfully estimate theta.
+//' @param theta_start Initial value for precision estimate.
+//' @param update_w Step size for prox-gradient mapping.
+//' @param update_change Proportion of \code{update_w} to keep when
+//'        the algorithm fails to successfully estimate precision.
 //' @param regularizer Regularizing constant, lambda.
 //' @param max_iter Number of mapping iterations.
 //' @param tol Tolerance at which the algorithm stops running.
@@ -116,13 +116,13 @@ arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start,
 // proximal gradient black box model log likelihood
 //' @name prox_gradient_ll
 //'
-//' @title prox-gradient log-likelihood estimator.
+//' @title Proxmal-gradient log-likelihood estimator.
 //'
 //' @description Estimates the log-likeihood for the corresponding
 //'              precision matrix and data set.
 //'
 //' @param data N x P matrix corresponding to the raw data.
-//' @param theta_i Estimate for theta.
+//' @param theta_i Estimate for precision.
 //' @param regularizer Regularizing constant, lambda.
 //'
 //' @return Log-likelihood estimate.

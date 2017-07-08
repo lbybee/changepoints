@@ -1,4 +1,4 @@
-library(changepoints_hd)
+library(changepointsHD)
 
 set.seed(334)
 
