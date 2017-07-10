@@ -83,9 +83,9 @@ res_bs = binary_segmentation(mcp_data, init, simulated_annealing,
 #res_sa = simulated_annealing(corpus, latent_vars, latent_dirichlet_allocation,
 #                             latent_dirichlet_allocation_ll, buff=10,
 #                             bbmod_method_params=latent_dirichlet_allocation_params)
-#res_bf = simulated_annealing(corpus, latent_vars, latent_dirichlet_allocation,
-#                             latent_dirichlet_allocation_ll, buff=10,
-#                             bbmod_method_params=latent_dirichlet_allocation_params)
+#res_bf = burte_force(corpus, latent_vars, latent_dirichlet_allocation,
+#                     latent_dirichlet_allocation_ll, buff=10,
+#                     bbmod_method_params=latent_dirichlet_allocation_params)
 #res_bs = binary_segmentation(corpus, latent_vars, simulated_annealing,
 #                             latent_dirichlet_allocation,
 #                             latent_dirichlet_allocation_ll,

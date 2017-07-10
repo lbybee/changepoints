@@ -302,13 +302,13 @@ double latent_dirichlet_allocation_ll(arma::mat corpus, List latent_vars){
     int D = corpus.n_rows;
     int V = corpus.n_cols;
     mat phi = latent_vars("phi");
+    mat theta = latent_vars("theta");
     mat z = latent_vars("z");
 
     double ll = 0.0;
     for (int d = 0; d<D; d++){
         for(int v = 0; v<V; v++){
-            ll += log(corpus(d,v) * phi(z(d,v),v));
-            printf("%f\n", ll);
+            ll += corpus(d,v) * log(phi(z(d,v),v) * theta(d,z(d,v)));
         }
     }
     return(ll);

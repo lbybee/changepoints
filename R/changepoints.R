@@ -80,14 +80,13 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
 
         u = runif(1)
 
-        print(paste("LL:", ll, "Prop LL:", llp, "CP:", tau, "Prop CP:", taup))
+        print(paste("Iteration:", iterations, "LL:", ll, "Prop LL:", llp, "CP:", tau, "Prop CP:", taup))
         if (prob > u){
             tau = taup
         }
 
         beta = min_beta^(iterations/niter)
         iterations = iterations + 1
-        print(iterations)
     }
     res = list()
     res$tau = tau
@@ -251,7 +250,6 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                     tau = tres$tau
                     bbmod_vals = tres$bbmod_vals
 
-                    print(paste(Nt, tau, length(datat), dim(datat)))
                     ll0 = do.call(bbmod_ll, c(list(datat[1:tau,],
                                                    bbmod_vals[[1]]),
                                               bbmod_ll_params))
@@ -269,13 +267,11 @@ binary_segmentation <- function(data, bbmod_init_vals, cp_method,
                     # exploded is a reasonable first approximation.
                     cond2 = (ll > -1e15) & (ll < 1e15)
                     cond3 = (tau < Nt - buff) & (tau > buff)
-                    print(cond1)
-                    print(cond2)
-                    print(cond3)
                     cond = cond1 & cond2 & cond3
                 }
 
                 else{
+                cond = FALSE
                 }
 
                 if(cond){
