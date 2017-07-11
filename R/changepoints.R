@@ -46,14 +46,16 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
 
     # initialize parameters
     N = dim(data)[1]
-    tau = sample(buff:(N-buff), 1)
+    ptaus = buff:(N-buff)
+    tau = sample(ptaus, 1)
     taup = tau
     iterations = 0
     beta = 1
+    change = TRUE
 
     while((beta > min_beta) & (iterations < niter)){
 
-        if(tau == taup){
+        if(change){
 
             bbmod_vals[[1]] = do.call(bbmod_method, c(list(data[1:tau,],
                                                            bbmod_vals[[1]]),
@@ -67,9 +69,10 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
             ll1 = do.call(bbmod_ll, c(list(data[(tau+1):N,], bbmod_vals[[2]]),
                                       bbmod_ll_params))
             ll = ll0 + ll1
+            change = FALSE
         }
 
-        taup = sample(buff:(N-buff), 1)
+        taup = sample(ptaus[-which(ptaus == tau)], 1)
         ll0p = do.call(bbmod_ll, c(list(data[1:taup,], bbmod_vals[[1]]),
                                    bbmod_ll_params))
         ll1p = do.call(bbmod_ll, c(list(data[(taup+1):N,], bbmod_vals[[2]]),
@@ -83,6 +86,7 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
         print(paste("Iteration:", iterations, "LL:", ll, "Prop LL:", llp, "CP:", tau, "Prop CP:", taup))
         if (prob > u){
             tau = taup
+            change = TRUE
         }
 
         beta = min_beta^(iterations/niter)

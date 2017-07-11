@@ -244,6 +244,7 @@ List latent_dirichlet_allocation(arma::mat corpus, List latent_vars,
                 z(d,v) = topic;
             }
         }
+        printf("LDA Iterations: %d\n", liter);
     }
     theta = theta_sampler(theta, nd, ndsum, alpha);
     phi = phi_sampler(phi, nw, nwsum, beta);
