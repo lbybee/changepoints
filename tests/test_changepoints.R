@@ -26,71 +26,32 @@ prox_gradient_ll_params$regularizer = 0.1
 simulated_annealing_params=list()
 simulated_annealing_params$buff=10
 
+# test simulated annealing
 res_sa = simulated_annealing(scp_data, init, prox_gradient_mapping,
                              prox_gradient_ll, buff=10,
                              bbmod_method_params=prox_gradient_params,
                              bbmod_ll_params=prox_gradient_ll_params)
+stopifnot(res_sa$tau == 56)
+
+# test brute force
 res_bf = brute_force(scp_data, init, prox_gradient_mapping,
                      prox_gradient_ll, buff=10,
                      bbmod_method_params=prox_gradient_params,
                      bbmod_ll_params=prox_gradient_ll_params)
+stopifnot(res_bf$tau == 43)
+
+# test rank one
 res_ro = rank_one(scp_data, init, update_w=0.1, regularizer=0.1)
+stopifnot(res_ro$tau == 56)
 
 mcp_data = read.table("mcp.txt")
 mcp_data = as.matrix(mcp_data)
 
+# test binary segmentation
 res_bs = binary_segmentation(mcp_data, init, simulated_annealing,
                              prox_gradient_mapping,
                              prox_gradient_ll, buff=10,
                              cp_method_params=simulated_annealing_params,
                              bbmod_method_params=prox_gradient_params,
                              bbmod_ll_params=prox_gradient_ll_params)
-
-# comparable tests to the above for LDA
-#t_data <- sample(0:100, 1000, replace=TRUE)
-#t_data <- matrix(t_data, nrow=100, ncol=10)
-
-#corpus = t_data
-#latent_vars=list()
-#z=matrix(sample(0:1, 1000, replace=TRUE), nrow=100, ncol=10)
-#latent_vars$theta=matrix(0, nrow=100, ncol=2)
-#latent_vars$phi=matrix(0, nrow=2, ncol=10)
-#nw=matrix(0, nrow=10, ncol=2)
-#nd=matrix(0, nrow=100, ncol=2)
-#nwsum=numeric(2)
-#ndsum=numeric(100)
-#for(d in 1:100){
-#    for(v in 1:10){
-#        topic = z[d,v]
-#        vcount = corpus[d,v]
-#        nw[v,topic] = nw[v,topic] + vcount
-#        nd[d,topic] = nd[d,topic] + vcount
-#        nwsum[topic] = nwsum[topic] + vcount
-#        ndsum[d] = ndsum[d] + vcount
-#    }
-#}
-#latent_vars$z = z
-#latent_vars$nw = nw
-#latent_vars$nd = nd
-#latent_vars$nwsum = nwsum
-#latent_vars$ndsum = ndsum
-
-#latent_dirichlet_allocation_params=list()
-#latent_dirichlet_allocation_params$niter = 50
-#latent_dirichlet_allocation_params$alpha = 1
-#latent_dirichlet_allocation_params$beta = 1
-
-#res_sa = simulated_annealing(corpus, latent_vars, latent_dirichlet_allocation,
-#                             latent_dirichlet_allocation_ll, buff=10,
-#                             bbmod_method_params=latent_dirichlet_allocation_params)
-#res_bf = burte_force(corpus, latent_vars, latent_dirichlet_allocation,
-#                     latent_dirichlet_allocation_ll, buff=10,
-#                     bbmod_method_params=latent_dirichlet_allocation_params)
-#res_bs = binary_segmentation(corpus, latent_vars, simulated_annealing,
-#                             latent_dirichlet_allocation,
-#                             latent_dirichlet_allocation_ll,
-#                             cp_method_params=simulated_annealing_params,
-#                             bbmod_method_params=latent_dirichlet_allocation_params)
-
-# comparable tests to the above showing the use of this approach
-# for not included models (GLM).
+stopifnot(res_bs$tau_l == c(0, 29, 45, 56, 67, 77, 88, 100))

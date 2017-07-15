@@ -10,4 +10,3 @@ License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.3)
 LinkingTo: RcppArmadillo, Rcpp
 RoxygenNote: 6.0.1
-LazyData: true
