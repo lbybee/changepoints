@@ -6,33 +6,6 @@
 
 using namespace Rcpp;
 
-// latent_dirichlet_allocation
-List latent_dirichlet_allocation(arma::mat corpus, List latent_vars, int niters, double alpha, double beta);
-RcppExport SEXP changepointsHD_latent_dirichlet_allocation(SEXP corpusSEXP, SEXP latent_varsSEXP, SEXP nitersSEXP, SEXP alphaSEXP, SEXP betaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type corpus(corpusSEXP);
-    Rcpp::traits::input_parameter< List >::type latent_vars(latent_varsSEXP);
-    Rcpp::traits::input_parameter< int >::type niters(nitersSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
-    rcpp_result_gen = Rcpp::wrap(latent_dirichlet_allocation(corpus, latent_vars, niters, alpha, beta));
-    return rcpp_result_gen;
-END_RCPP
-}
-// latent_dirichlet_allocation_ll
-double latent_dirichlet_allocation_ll(arma::mat corpus, List latent_vars);
-RcppExport SEXP changepointsHD_latent_dirichlet_allocation_ll(SEXP corpusSEXP, SEXP latent_varsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type corpus(corpusSEXP);
-    Rcpp::traits::input_parameter< List >::type latent_vars(latent_varsSEXP);
-    rcpp_result_gen = Rcpp::wrap(latent_dirichlet_allocation_ll(corpus, latent_vars));
-    return rcpp_result_gen;
-END_RCPP
-}
 // prox_gradient_mapping
 arma::mat prox_gradient_mapping(arma::mat data, arma::mat theta_start, double update_w, double update_change, double regularizer, int max_iter, double tol);
 RcppExport SEXP changepointsHD_prox_gradient_mapping(SEXP dataSEXP, SEXP theta_startSEXP, SEXP update_wSEXP, SEXP update_changeSEXP, SEXP regularizerSEXP, SEXP max_iterSEXP, SEXP tolSEXP) {
@@ -85,8 +58,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"changepointsHD_latent_dirichlet_allocation", (DL_FUNC) &changepointsHD_latent_dirichlet_allocation, 5},
-    {"changepointsHD_latent_dirichlet_allocation_ll", (DL_FUNC) &changepointsHD_latent_dirichlet_allocation_ll, 2},
     {"changepointsHD_prox_gradient_mapping", (DL_FUNC) &changepointsHD_prox_gradient_mapping, 7},
     {"changepointsHD_prox_gradient_ll", (DL_FUNC) &changepointsHD_prox_gradient_ll, 3},
     {"changepointsHD_rank_one", (DL_FUNC) &changepointsHD_rank_one, 10},
