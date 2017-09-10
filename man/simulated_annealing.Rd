@@ -42,7 +42,7 @@ black box model.  Should return scalar estimate of ll/cost.}
 \item{bbmod_ll_params}{List of additional parameters for \code{bbmod_ll}.}
 }
 \value{
-List containing estimated change-point and black box model estimates.
+List containing estimated change-point black box model estimates, and trace.
 }
 \description{
 Estimates a single change-point using the simulated annealing

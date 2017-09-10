@@ -29,7 +29,7 @@
 #' @param bbmod_method_params List of additional parameters for \code{bbmod_method}.
 #' @param bbmod_ll_params List of additional parameters for \code{bbmod_ll}.
 #'
-#' @return List containing estimated change-point and black box model estimates.
+#' @return List containing estimated change-point black box model estimates, and trace.
 #'
 #' @author \packageMaintainer{changepointsHD}
 simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
@@ -52,6 +52,7 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
     iterations = 0
     beta = 1
     change = TRUE
+    trace = c()
 
     while((beta > min_beta) & (iterations < niter)){
 
@@ -88,6 +89,7 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
             tau = taup
             change = TRUE
         }
+        trace = c(trace, tau)
 
         beta = min_beta^(iterations/niter)
         iterations = iterations + 1
@@ -95,6 +97,7 @@ simulated_annealing <- function(data, bbmod_init_vals, bbmod_method, bbmod_ll,
     res = list()
     res$tau = tau
     res$bbmod_vals = bbmod_vals
+    res$trace = trace
     return(res)
 }
 
