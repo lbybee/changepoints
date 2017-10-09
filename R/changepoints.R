@@ -1,4 +1,4 @@
-partition_data <- function(row, partition, tau){
+.partition_data <- function(row, partition, tau){
     N = dim(row)[1]
     if(partition == 1){
         row = row[1:tau,]
@@ -12,52 +12,100 @@ partition_data <- function(row, partition, tau){
 
 
 
-changepointMod <- setClass(
+#' @name changepointsMod-class
+#'
+#' @title An S4 class corresponding to the change-point model.
+#'
+#' @description An S4 class corresponding to the change-point model.
+#'
+#' @slot data A list containing the data for the change-point model.
+#'       The exact structure of the data is dependent on the \code{bbmod}
+#'       and \code{log_likelihood} provided.  In cases where the data is
+#'       fairly simple, it should still be wrapped with a list, e.g.
+#'       X = list(X), to allow changepointsMod to handle it properly.
+#' @slot part_values A list containing the values estimated by
+#'       \code{bbmod}. \code{part_values}, in particular, contain values
+#'       that are updated independently for each partition (as opposed to
+#'       \code{whole_values}).
+#' @slot whole_values A list containing the values estimated by bbmod.
+#'       whole values, in particular, contain values that are shared
+#'       between partitions (as opposed to \code{part_values}).
+#' @slot bbmod An R function for performing the black-box estimation.
+#' @slot bbmod_params A list containing any additional parameters
+#'       for \code{bbmod}.
+#' @slot log_likelihood An R function for estimating the log-likelihood
+#'       for the corresponding \code{bbmod}.
+#' @slot ll_params A list containing any additional parameters for
+#'       \code{log_likelihood}.
+#' @slot trace A vector corresponding the the trace of the estimated
+#'       change-points based on the method used.
+#' @slot changepoints A scalar/vector corresponding to the changepoint(s)
+#'       estimated based on the method used.
+#' @slot mod_list A list corresponding to all the active single change-point
+#'       models used with \code{binary_segmentation}.
+#' @slot mod_range A list of the range of observations corresponding to each
+#'       active model for \code{binary_segmentation}.
+#'
+#' @author \packageMaintainer{changepointsHD}
+#'
+#' @rdname changepointsMod-class
+#' @exportClass changepointsMod
+changepointsMod <- setClass(
     # set class name
-    "changepointMod",
+    "changepointsMod",
 
     # set slots
     slots = c(
-            ll_params = "list",
-            bbmod_params = "list",
             data = "list",
             part_values = "list",
-            general_values = "list",
+            whole_values = "list",
             bbmod = "function",
+            bbmod_params = "list",
             log_likelihood = "function",
+            ll_params = "list",
             trace = "numeric",
             changepoints = "numeric",
             mod_list = "list",
             mod_range = "list"
             ),
 
-    # set default values
-    prototype = list(
-                ll_params = list(),
-                bbmod_params = list(),
-                data = list(),
-                part_values = list(),
-                general_values = list()
-                ),
-
-    # confirm that only one of part_values and general_values
-    # was provided.  Currently, we don't support models that
-    # require both
+    # confirm that starting values were provided for estimation
+    # method
     validity=function(object)
     {
-        if((length(object@part_values) > 0) &
-           (length(object@general_values) > 0)){
-            return("Both part_values and general_values were provided.")
-        }
         if((length(object@part_values) == 0) &
-           (length(object@general_values) == 0)){
-            return("Both part_values and general_values were null.")
+           (length(object@whole_values) == 0)){
+            return("Both part_values and whole_values were null.")
         }
         return(TRUE)
     }
 )
 
 
+#' @name bbmod_method
+#'
+#' @title Wrapper method for black-box estimation.
+#'
+#' @description Applies the black-box estimator to the specified partition given
+#'              the current tau value.  Additionally, this wrapper handles the
+#'              different data structures possible for \code{part_values} and
+#'              \code{whole_values}.
+#'
+#' @param object Corresponding \code{changepointsMod} class.
+#' @param part Index for current partition, should be 1 or 2.
+#' @param tau Current change-point.  Should be between buff and N - buff.
+#'
+#' @return An updated version of the change-point model.  There are currently three
+#'         possible updates depending on the form of the \code{part_values} and
+#'         \code{whole_values} provided.  1) If only \code{part_values} are provided,
+#'         then we assume the black-box method only updates \code{part_values.}
+#'         2) If only \code{whole_values} are provide, we assume the black-box
+#'         method only updates \code{whole_values}. 3) If both \code{part_values}
+#'         and \code{whole_values} are provided, we assume that both are updated.
+#'
+#' @author \packageMaintainer{changepointsHD}
+#'
+#' @rdname bbmod_method
 setGeneric(name="bbmod_method",
            def=function(object, part, tau)
            {
@@ -65,44 +113,69 @@ setGeneric(name="bbmod_method",
            }
 )
 
+#' @rdname bbmod_method
 setMethod(f="bbmod_method",
-          signature="changepointMod",
+          signature="changepointsMod",
           definition=function(object, part, tau)
           {
               # extract data for current partition
               part_data = lapply(object@data,
-                                 function(row) partition_data(row, part, tau))
+                                 function(row) .partition_data(row, part, tau))
 
               if((length(object@part_values) > 0) &
-                 (length(object@general_values) == 0)){
+                 (length(object@whole_values) == 0)){
                   params = c(part_data,
                              list(object@part_values[[part]]),
                              object@bbmod_params)
                   object@part_values[[part]] = do.call(object@bbmod, params)
               }
-              else if((length(object@general_values) > 0) &
+              else if((length(object@whole_values) > 0) &
                       (length(object@part_values) == 0)){
                   params = c(part_data,
-                             object@general_values,
+                             object@whole_values,
                              object@bbmod_params)
-                  object@general_values = do.call(object@bbmod, params)
+                  object@whole_values = do.call(object@bbmod, params)
               }
-              else if((length(object@general_values) > 0) &
+              else if((length(object@whole_values) > 0) &
                       (length(object@part_values) > 0)){
                   group_values = list(list(object@part_values[[part]]),
-                                      object@general_values)
+                                      object@whole_values)
                   params = c(part_data,
                              group_values,
                              object@bbmod_params)
                   group_values = do.call(object@bbmod, params)
                   object@part_values[[part]] = group_values[[1]]
-                  object@general_values = group_values[[2]]
+                  object@whole_values = group_values[[2]]
               }
               return(object)
           }
 )
 
 
+#' @name log_likelihood_method
+#'
+#' @title Wrapper method for log-likelihood estimation.
+#'
+#' @description Generates the log-likelihood for the specified partition given the
+#'              current tau value.  Additionally, this wrapper handles the different
+#'              data structures possible for part_values and whole_values.
+#'
+#' @param object Corresponding \code{changepointsMod} class.
+#' @param part Index for current partition, should be 1 or 2.
+#' @param tau Current change-point.  Should be between buff and N - buff.
+#'
+#' @return The log-likelihood estimate for the current state.  There are currently three
+#'         possible versions depending on the form of the \code{part_values} and
+#'         \code{whole_values} provided.  1) If only \code{part_values} are provided,
+#'         then we assume the log-likelihood takes only the \code{part_values.}
+#'         2) If only \code{whole_values} are provide, we assume the log-likelihood
+#'         takes only the \code{whole_values}. 3) If both \code{part_values}
+#'         and \code{whole_values} are provided, we assume that the log-likelihood
+#'         takes both.
+#'
+#' @author \packageMaintainer{changepointsHD}
+#'
+#' @rdname log_likelihood_method
 setGeneric(name="log_likelihood_method",
            def=function(object, part, tau)
            {
@@ -110,32 +183,33 @@ setGeneric(name="log_likelihood_method",
            }
 )
 
+#' @rdname log_likelihood_method
 setMethod(f="log_likelihood_method",
-          signature="changepointMod",
+          signature="changepointsMod",
           definition=function(object, part, tau)
           {
               # extract data for current partition
               part_data = lapply(object@data,
-                                 function(row) partition_data(row, part, tau))
+                                 function(row) .partition_data(row, part, tau))
 
               if((length(object@part_values) > 0) &
-                 (length(object@general_values) == 0)){
+                 (length(object@whole_values) == 0)){
                   params = c(part_data,
                              list(object@part_values[[part]]),
                              object@ll_params)
                   return(do.call(object@log_likelihood, params))
               }
-              else if((length(object@general_values) > 0) &
+              else if((length(object@whole_values) > 0) &
                       (length(object@part_values) == 0)){
                   params = c(part_data,
-                             object@general_values,
+                             object@whole_values,
                              object@ll_params)
                   return(do.call(object@log_likelihood, params))
               }
-              else if((length(object@general_values) > 0) &
+              else if((length(object@whole_values) > 0) &
                       (length(object@part_values) > 0)){
                   group_values = list(list(object@part_values[[part]]),
-                                      object@general_values)
+                                      object@whole_values)
                   params = c(part_data,
                              group_values,
                              object@ll_params)
@@ -145,6 +219,58 @@ setMethod(f="log_likelihood_method",
 )
 
 
+#' @name simulated_annealing
+#'
+#' @title Single change-point simulated annealing method
+#'
+#' @description Estimates a single change-point using the simulated annealing
+#'              method.
+#'
+#' @param object Corresponding \code{changepointsMod} class.
+#' @param niter Number of simulated annealing iterations.
+#' @param min_beta Lowest temperature.
+#' @param buff Distance from edge of sample to be maintained during search.
+#'
+#' @return An updated version of the change-point model.  The update will effect:
+#'         1) the \code{part_values} and/or \code{whole_values} (depending on the initial
+#'         values provided).  2) An estimate for the current change-point.  3) The trace
+#'         for the search.
+#'
+#' @examples
+#' set.seed(334)
+#'
+#' scp_data = read.table(system.file("extdata", "scp.txt", package="changepointsHD"))
+#' scp_data = as.matrix(scp_data)
+#'
+#' # prox gradient black-box method
+#' cov_est = cov(scp_data)
+#' init = solve(cov_est)
+#' res_map = prox_gradient_mapping(scp_data, init, 0.1, 0.99, 0.1, 100, 1e-20)
+#'
+#' # prox gradient black-box ll
+#' res_ll = prox_gradient_ll(scp_data, res_map, 0.1)
+#'
+#' prox_gradient_params=list()
+#' prox_gradient_params$update_w = 0.1
+#' prox_gradient_params$update_change = 0.99
+#' prox_gradient_params$regularizer = 0.1
+#' prox_gradient_params$max_iter = 1
+#' prox_gradient_params$tol = 1e-5
+#'
+#' prox_gradient_ll_params=list()
+#' prox_gradient_ll_params$regularizer = 0.1
+#'
+#' changepoints_mod = changepointsMod(bbmod=prox_gradient_mapping,
+#'                                  log_likelihood=prox_gradient_ll,
+#'                                  bbmod_params=prox_gradient_params,
+#'                                  ll_params=prox_gradient_ll_params,
+#'                                  part_values=list(init, init),
+#'                                  data=list(scp_data))
+#' changepoints_mod = simulated_annealing(changepoints_mod, buff=10)
+#'
+#' @author \packageMaintainer{changepointsHD}
+#'
+#' @rdname simulated_annealing
 setGeneric(name="simulated_annealing",
            def=function(object, niter=500, min_beta=1e-4, buff=100)
            {
@@ -152,8 +278,9 @@ setGeneric(name="simulated_annealing",
            }
 )
 
+#' @rdname simulated_annealing
 setMethod(f="simulated_annealing",
-          signature="changepointMod",
+          signature="changepointsMod",
           definition=function(object, niter, min_beta, buff)
           {
           # TODO might be a cleaner way to handle N
@@ -196,6 +323,57 @@ setMethod(f="simulated_annealing",
 )
 
 
+#' @name brute_force
+#'
+#' @title Single change-point brute force method.
+#'
+#' @description Estimates a single change-point by testing all possible
+#'              change-points.
+#'
+#' @param object Corresponding \code{changepointsMod} class.
+#' @param niter Number of iterations at each possible change-point.
+#' @param buff Distance from edge of sample to be maintained during search.
+#'
+#' @return An updated version of the change-point model.  The update will effect:
+#'         1) the \code{part_values} and/or \code{whole_values} (depending on the initial
+#'         values provided).  2) An estimate for the current changepoint.  3) The trace
+#'         for the search.
+#'
+#' @examples
+#' set.seed(334)
+#'
+#' scp_data = read.table(system.file("extdata", "scp.txt", package="changepointsHD"))
+#' scp_data = as.matrix(scp_data)
+#'
+#' # prox gradient black-box method
+#' cov_est = cov(scp_data)
+#' init = solve(cov_est)
+#' res_map = prox_gradient_mapping(scp_data, init, 0.1, 0.99, 0.1, 100, 1e-20)
+#'
+#' # prox gradient black-box ll
+#' res_ll = prox_gradient_ll(scp_data, res_map, 0.1)
+#'
+#' prox_gradient_params=list()
+#' prox_gradient_params$update_w = 0.1
+#' prox_gradient_params$update_change = 0.99
+#' prox_gradient_params$regularizer = 0.1
+#' prox_gradient_params$max_iter = 1
+#' prox_gradient_params$tol = 1e-5
+#'
+#' prox_gradient_ll_params=list()
+#' prox_gradient_ll_params$regularizer = 0.1
+#'
+#' changepoints_mod = changepointsMod(bbmod=prox_gradient_mapping,
+#'                                  log_likelihood=prox_gradient_ll,
+#'                                  bbmod_params=prox_gradient_params,
+#'                                  ll_params=prox_gradient_ll_params,
+#'                                  part_values=list(init, init),
+#'                                  data=list(scp_data))
+#' changepoints_mod = brute_force(changepoints_mod, buff=10)
+#'
+#' @author \packageMaintainer{changepointsHD}
+#'
+#' @rdname brute_force
 setGeneric(name="brute_force",
            def=function(object, niter=1, buff=100)
            {
@@ -203,8 +381,9 @@ setGeneric(name="brute_force",
            }
 )
 
+#' @rdname brute_force
 setMethod(f="brute_force",
-          signature="changepointMod",
+          signature="changepointsMod",
           definition=function(object, niter, buff)
           {
           N = dim(object@data[[1]])[1]
@@ -234,6 +413,70 @@ setMethod(f="brute_force",
 )
 
 
+#' @name binary_segmentation
+#'
+#' @title Multiple change-point method.
+#'
+#' @description Estimates multiple change-points using the binary-segmentation
+#'              method.  This does a breadth first search and uses the specified
+#'              single change-point method for each sub-search.
+#'
+#' @param object Corresponding \code{changepointsMod} class.
+#' @param method changepointHD method for finding single change-point.
+#' @param thresh Stopping threshold for cost comparison.
+#' @param buff Distance from edge of sample to be maintained during search.
+#' @param method_params List of additional parameters for \code{method}.
+#'
+#' @return An updated version of the change-point model.  The update will effect:
+#'         1) An estimate for the current set of change-points.  2) The \code{mod_list},
+#'         this will correspond to all the active single change-point models
+#'         generated during the binary-segmentation procedure.  Acitve models
+#'         correspond to models that have not been superseded by more granular
+#'         models.  3) The \code{mod_range}, this corresponds to the range of
+#'         observations covered by each model.  It can be used to determine which
+#'         models are active.
+#'
+#' @examples
+#' set.seed(334)
+#'
+#' mcp_data = read.table(system.file("extdata", "mcp.txt", package="changepointsHD"))
+#' mcp_data = as.matrix(mcp_data)
+#'
+#' # prox gradient black-box method
+#' cov_est = cov(mcp_data)
+#' init = solve(cov_est)
+#' res_map = prox_gradient_mapping(mcp_data, init, 0.1, 0.99, 0.1, 100, 1e-20)
+#'
+#' # prox gradient black-box ll
+#' res_ll = prox_gradient_ll(mcp_data, res_map, 0.1)
+#'
+#' prox_gradient_params=list()
+#' prox_gradient_params$update_w = 0.1
+#' prox_gradient_params$update_change = 0.99
+#' prox_gradient_params$regularizer = 0.1
+#' prox_gradient_params$max_iter = 1
+#' prox_gradient_params$tol = 1e-5
+#'
+#' prox_gradient_ll_params=list()
+#' prox_gradient_ll_params$regularizer = 0.1
+#'
+#' simulated_annealing_params = list()
+#' simulated_annealing_params$buff=10
+#'
+#' changepoints_mod = changepointsMod(bbmod=prox_gradient_mapping,
+#'                                  log_likelihood=prox_gradient_ll,
+#'                                  bbmod_params=prox_gradient_params,
+#'                                  ll_params=prox_gradient_ll_params,
+#'                                  part_values=list(init, init),
+#'                                  data=list(mcp_data))
+#'
+#' changepoints_mod = binary_segmentation(changepoints_mod, method=simulated_annealing,
+#'                                        thresh=0, buff=10,
+#'                                        method_params=simulated_annealing_params)
+#'
+#' @author \packageMaintainer{changepointsHD}
+#'
+#' @rdname binary_segmentation
 setGeneric(name="binary_segmentation",
            def=function(object, method, thresh=0, buff=100,
                         method_params=list())
@@ -242,8 +485,9 @@ setGeneric(name="binary_segmentation",
            }
 )
 
+#' @rdname binary_segmentation
 setMethod(f="binary_segmentation",
-          signature="changepointMod",
+          signature="changepointsMod",
           definition=function(object, method, thresh, buff, method_params)
           {
           N = dim(object@data[[1]])[1]
@@ -272,13 +516,13 @@ setMethod(f="binary_segmentation",
 
                       if(Nt > 2 * (buff + 1)){
 
-                      tmod = changepointMod(data=part_data,
+                      tmod = changepointsMod(data=part_data,
                                             bbmod=object@bbmod,
                                             log_likelihood=object@log_likelihood,
                                             bbmod_params=object@bbmod_params,
                                             ll_params=object@ll_params,
                                             part_values=object@part_values,
-                                            general_values=object@general_values)
+                                            whole_values=object@whole_values)
                       tmod = do.call(method, c(list(tmod), method_params))
                       tau = tmod@changepoints
                       ll0 = log_likelihood_method(tmod, 1, tau)
@@ -338,6 +582,8 @@ setMethod(f="binary_segmentation",
               n_mod_list = list()
               n_mod_range = list()
               n_ind = 1
+              # then iterate over previous mod_list/mod_range and select
+              # those models which are still active
               for(mod_ind in 1:length(mod_range)){
                   cov = mod_range[[mod_ind]]
                   tind = cov[1]:cov[2]
@@ -348,6 +594,8 @@ setMethod(f="binary_segmentation",
                       n_ind = n_ind + 1
                   }
               }
+              # join the previous active models with current active
+              # models
               mod_list = c(n_mod_list, t_mod_list)
               mod_range = c(n_mod_range, t_mod_range)
           }
