@@ -1,5 +1,7 @@
 .partition_data <- function(row, partition, tau){
-    N = dim(row)[1]
+    # TODO handle vector and matrices more cleanly
+    dm = dim(row)
+    N = dm[1]
     if(partition == 1){
         row = row[1:tau,]
     }
@@ -121,7 +123,9 @@ setMethod(f="bbmod_method",
               # extract data for current partition
               part_data = lapply(object@data,
                                  function(row) .partition_data(row, part, tau))
+              print(dim(part_data[[1]]))
 
+              # TODO add support for list values vs. list wrapped values
               if((length(object@part_values) > 0) &
                  (length(object@whole_values) == 0)){
                   params = c(part_data,
@@ -132,14 +136,15 @@ setMethod(f="bbmod_method",
               else if((length(object@whole_values) > 0) &
                       (length(object@part_values) == 0)){
                   params = c(part_data,
-                             object@whole_values,
+                             list(object@whole_values),
                              object@bbmod_params)
                   object@whole_values = do.call(object@bbmod, params)
+                  print("HELLO")
               }
               else if((length(object@whole_values) > 0) &
                       (length(object@part_values) > 0)){
                   group_values = list(list(object@part_values[[part]]),
-                                      object@whole_values)
+                                      list(object@whole_values))
                   params = c(part_data,
                              group_values,
                              object@bbmod_params)
@@ -202,14 +207,14 @@ setMethod(f="log_likelihood_method",
               else if((length(object@whole_values) > 0) &
                       (length(object@part_values) == 0)){
                   params = c(part_data,
-                             object@whole_values,
+                             list(object@whole_values),
                              object@ll_params)
                   return(do.call(object@log_likelihood, params))
               }
               else if((length(object@whole_values) > 0) &
                       (length(object@part_values) > 0)){
                   group_values = list(list(object@part_values[[part]]),
-                                      object@whole_values)
+                                      list(object@whole_values))
                   params = c(part_data,
                              group_values,
                              object@ll_params)
@@ -296,9 +301,13 @@ setMethod(f="simulated_annealing",
           while((beta > min_beta) & (iterations < niter)){
               if(change){
                   object = bbmod_method(object, 1, tau)
+                  print("UPDATE1")
                   object = bbmod_method(object, 2, tau)
+                  print("UPDATE2")
                   ll0 = log_likelihood_method(object, 1, tau)
+                  print("LL1")
                   ll1 = log_likelihood_method(object, 2, tau)
+                  print("LL2")
                   ll = ll0 + ll1
                   change = FALSE
               }

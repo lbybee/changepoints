@@ -8,6 +8,15 @@
 \description{
 \packageDescription{changepointsHD}
 }
+\details{
+\tabular{ll}{
+Package: \tab changepointsHD\cr
+Type: \tab Package\cr
+Version: \tab 0.3.0\cr
+Date: \tab 2017-11-06\cr
+License: \tab GPL-2\cr
+}
+}
 %\details{
 %\tabular{ll}{
 %Package: \tab \packagePackage{changepoints} \cr
@@ -21,9 +30,8 @@
 
 Maintainer: \packageMaintainer{changepointsHD}
 }
-%\references{
-%~~ Literature or other references for background information ~~
-%}
+\references{1. L. Bybee and Y. Atchade: "A Scalable Algorithm for Gaussian Graphical Models with Change-Points", 2017; [http://arxiv.org/abs/1707.04306 arXiv:1707.04306].
+}
 %~~ Optionally other standard keywords, one per line, from file KEYWORDS ~~
 %~~ in the R documentation directory ~~
 \keyword{ package }
