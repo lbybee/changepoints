@@ -30,8 +30,9 @@ License: \tab GPL-2\cr
 
 Maintainer: \packageMaintainer{changepointsHD}
 }
-\references{1. L. Bybee and Y. Atchade: "A Scalable Algorithm for Gaussian Graphical Models with Change-Points", 2017; [http://arxiv.org/abs/1707.04306 arXiv:1707.04306].
-}
+
+\references{1. L. Bybee and Y. Atchade: "Change-Point Computation for Large Graphical Models: A Scalable Algorithm for Gaussian Graphical Models with Change-Points", 2018; [http://jmlr.csail.mit.edu/papers/volume19/17-218/17-218.pdf].}
+
 %~~ Optionally other standard keywords, one per line, from file KEYWORDS ~~
 %~~ in the R documentation directory ~~
 \keyword{ package }
