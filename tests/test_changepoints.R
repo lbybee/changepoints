@@ -1,5 +1,6 @@
 library(changepointsHD)
 
+RNGkind(sample.kind = "Rounding")
 set.seed(334)
 
 scp_data = read.table(system.file("extdata", "scp.txt", package="changepointsHD"))
